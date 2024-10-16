@@ -25,6 +25,7 @@ import { Topic } from './topics/entities/topic.entity';
         database: configService.get<string>('POSTGRES_DB'),
         models: [User, Topic],
         autoLoadModels: true,
+        synchronize: true,
       }),
     }),
     UsersModule,
