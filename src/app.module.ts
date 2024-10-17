@@ -17,7 +17,7 @@ import { Topic } from './topics/entities/topic.entity';
     SequelizeModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        dialect: configService.get<Dialect>('POSTGRES_DB'),
+        dialect: configService.get<Dialect>('POSTGRES_DIALECT'),
         host: configService.get<string>('POSTGRES_HOST'),
         port: Number(configService.get<string>('POSTGRES_PORT')),
         username: configService.get<string>('POSTGRES_USER'),

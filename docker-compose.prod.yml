@@ -5,15 +5,18 @@ services:
     container_name: nest-app
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
-      - '5500:5500'
+      - ${PORT}:${PORT}
     environment:
       NODE_ENV: production
-    volumes:
-      - .:/app
+      PORT: ${PORT}
     depends_on:
       - postgres
+    networks:
+      - internal
+    env_file:
+      - .env.prod
 
   postgres:
     image: postgres:15
@@ -22,10 +25,14 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - '5432:5432'
     volumes:
       - pg_data:/var/lib/postgresql/data
+    networks:
+      - internal
 
 volumes:
   pg_data:
+
+networks:
+  internal:
+    driver: bridge
