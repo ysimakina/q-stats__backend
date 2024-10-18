@@ -29,12 +29,12 @@ services:
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
-      - pg_data_dev:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     networks:
       - internal
 
 volumes:
-  pg_data_dev:
+  pg_data:
 
 networks:
   internal:
