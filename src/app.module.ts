@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-
 import { Dialect } from 'sequelize';
+
+import { Topic } from './topics/entities/topic.entity';
+import { TopicsModule } from './topics/topics.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { TopicsModule } from './topics/topics.module';
-import { Topic } from './topics/entities/topic.entity';
 
 @Module({
   imports: [

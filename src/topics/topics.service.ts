@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Topic } from './entities/topic.entity';
 import { InjectModel } from '@nestjs/sequelize';
+
+import { Topic } from './entities/topic.entity';
 
 @Injectable()
 export class TopicsService {
