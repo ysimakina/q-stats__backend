@@ -8,9 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { TopicQuestionsService } from './topic_questions.service';
 import { UpdateTopicQuestionDto } from './dto/update-topic_question.dto';
 import { CreateTopicQuestionDto } from './dto/create-topic_question.dto';
+import { TopicQuestionsService } from './topic_questions.service';
 
 @Controller('topic-questions')
 export class TopicQuestionsController {

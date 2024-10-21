@@ -41,28 +41,37 @@ export class TopicQuestionsService {
   async findOne(id: number) {
     const question = await this.topicQuestionRepository.findByPk(id);
 
-    if (!question) throw new NotFoundException(`Question with ID ${id} not found`);
+    if (!question) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
 
     return question;
   }
 
   async create(dto: CreateTopicQuestionDto) {
     const { topicId } = dto;
-    const order = await this.topicQuestionRepository.findAll({
+
+    const topicQuestions = await this.topicQuestionRepository.findAll({
       where: {
         topicId,
       },
     });
 
-    const newOrder = order.length + 1;
+    if (!topicQuestions.length) {
+      throw new NotFoundException(`Topic with ID ${topicId} not found`);
+    }
 
-    return this.topicQuestionRepository.create({ ...dto, order: newOrder });
+    const order = topicQuestions.length + 1;
+
+    return this.topicQuestionRepository.create({ ...dto, order: order });
   }
 
   async update(id: number, dto: UpdateTopicQuestionDto) {
     const question = await this.topicQuestionRepository.findByPk(id);
 
-    if (!question) throw new NotFoundException(`Question with ID topic ${id} not found`);
+    if (!question) {
+      throw new NotFoundException(`Question with ID topic ${id} not found`);
+    }
 
     return question.update(dto);
   }
