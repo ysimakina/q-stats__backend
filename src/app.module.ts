@@ -5,10 +5,10 @@ import { Dialect } from 'sequelize';
 
 import { User } from './users/entities/user.entity';
 import { Topic } from './topics/entities/topic.entity';
-import { TopicQuestion } from './topic_questions/entities/topic_question.entity';
+import { TopicQuestion } from './topic-questions/entities/topic-question.entity';
 import { UsersModule } from './users/users.module';
 import { TopicsModule } from './topics/topics.module';
-import { TopicQuestionsModule } from './topic_questions/topic_questions.module';
+import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
 
 @Module({
   imports: [

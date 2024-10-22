@@ -1,6 +1,6 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 
-import { TopicQuestion } from 'src/topic_questions/entities/topic_question.entity';
+import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
 
 interface TopicCreactionAttrs {
   name: string;

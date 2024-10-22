@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
-import { UpdateTopicQuestionDto } from './dto/update-topic_question.dto';
-import { CreateTopicQuestionDto } from './dto/create-topic_question.dto';
-import { OutputGetTopicQuestionDto } from './dto/output-get-topic_question.dto';
-import { OutputCreateTopicQuestionDto } from './dto/output-create-topic_question.dto';
-import { TopicQuestionsService } from './topic_questions.service';
+import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
+import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
+import { OutputGetTopicQuestionDto } from './dto/output-get-topic-question.dto';
+import { OutputCreateTopicQuestionDto } from './dto/output-create-topic-question.dto';
+import { TopicQuestionsService } from './topic-questions.service';
 
 @Controller('topic-questions')
 export class TopicQuestionsController {

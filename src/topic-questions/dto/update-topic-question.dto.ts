@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-import { CreateTopicQuestionDto } from './create-topic_question.dto';
+import { CreateTopicQuestionDto } from './create-topic-question.dto';
 
 export class UpdateTopicQuestionDto extends PartialType(
   CreateTopicQuestionDto,
