@@ -8,10 +8,14 @@ export class TopicsService {
   constructor(@InjectModel(Topic) private userRepository: typeof Topic) {}
 
   findAll() {
-    return this.userRepository.findAll();
+    return this.userRepository.findAll({
+      attributes: ['id', 'name'],
+    });
   }
 
   findOne(id: number) {
-    return this.userRepository.findByPk(id);
+    return this.userRepository.findByPk(id, {
+      attributes: ['id', 'name'],
+    });
   }
 }

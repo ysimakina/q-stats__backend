@@ -3,10 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
 
-import { Topic } from './topics/entities/topic.entity';
-import { TopicsModule } from './topics/topics.module';
 import { User } from './users/entities/user.entity';
+import { Topic } from './topics/entities/topic.entity';
+import { TopicQuestion } from './topic_questions/entities/topic_question.entity';
 import { UsersModule } from './users/users.module';
+import { TopicsModule } from './topics/topics.module';
+import { TopicQuestionsModule } from './topic_questions/topic_questions.module';
 
 @Module({
   imports: [
@@ -23,13 +25,14 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
-        models: [User, Topic],
+        models: [User, Topic, TopicQuestion],
         autoLoadModels: true,
         synchronize: true,
       }),
     }),
     UsersModule,
     TopicsModule,
+    TopicQuestionsModule,
   ],
 })
 export class AppModule {}
