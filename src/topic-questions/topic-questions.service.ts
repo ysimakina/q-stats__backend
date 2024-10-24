@@ -30,7 +30,6 @@ export class TopicQuestionsService {
       where: { topicId },
       attributes: { 
         include: ['id', 'text', 'order'], 
-        exclude: ['topicId'] 
       },
       order: [['order', 'ASC']],
     });

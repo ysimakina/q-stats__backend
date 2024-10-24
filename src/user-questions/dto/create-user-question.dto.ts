@@ -5,9 +5,6 @@ export class CreateUserQuestionDto {
   readonly topicQuestionId?: number;
 
   @IsNumber({}, { message: 'UserId must be a number' })
-  readonly userId: number;
-
-  @IsNumber({}, { message: 'UserId must be a number' })
   readonly topicId?: number;
 
   @IsString({ message: 'Text must be a string' })

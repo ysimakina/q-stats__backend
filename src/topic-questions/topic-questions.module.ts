@@ -6,9 +6,9 @@ import { TopicQuestionsService } from './topic-questions.service';
 import { TopicQuestionsController } from './topic-questions.controller';
 
 @Module({
+  imports: [SequelizeModule.forFeature([TopicQuestion])],
   controllers: [TopicQuestionsController],
   providers: [TopicQuestionsService],
   exports: [TopicQuestionsService],
-  imports: [SequelizeModule.forFeature([TopicQuestion])],
 })
 export class TopicQuestionsModule {}

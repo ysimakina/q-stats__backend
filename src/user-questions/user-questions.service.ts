@@ -6,7 +6,6 @@ import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entit
 import { Topic } from 'src/topics/entities/topic.entity';
 import { TopicQuestionsService } from 'src/topic-questions/topic-questions.service';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
-import { GetMergeUserQuestionDto } from './dto/get-merge-user-question.dto';
 import { UserQuestion } from './entities/user-question.entity';
 
 @Injectable()
@@ -16,21 +15,18 @@ export class UserQuestionsService {
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
-  async createDefaultQuestion(createUserQuestionDto: CreateUserQuestionDto) {
-    const { topicQuestionId, userId, text } = createUserQuestionDto;
-
-    if (!topicQuestionId) {
-      throw new BadRequestException(`TopicQuestion with ID ${topicQuestionId} not found`);
-    }
-
-    const order = await this.userQuestionRepository.findOne({
-      where: { userId },
-      order: [['order', 'DESC']],
-    });
-
-    const nextOrder = order ? order.order + 1 : 1;
-
+  async createDefaultQuestion(createUserQuestionDto: CreateUserQuestionDto, userId: number) {
     try {
+      const { topicQuestionId, text } = createUserQuestionDto;
+
+      const userQuestion = await this.userQuestionRepository.findOne({
+        attributes: ['order'],
+        where: { userId },
+        order: [['order', 'DESC']],
+      });
+
+      const nextOrder = userQuestion ? userQuestion.order + 1 : 1;
+
       return await this.userQuestionRepository.create({
         userId,
         topicQuestionId,
@@ -42,66 +38,69 @@ export class UserQuestionsService {
     }
   }
 
-  async createCustomQuestion(createUserQuestionDto: CreateUserQuestionDto) {
-    const { topicId, userId, text } = createUserQuestionDto;
+  async createCustomQuestion(createUserQuestionDto: CreateUserQuestionDto, userId: number) {
+    try {
+      const { topicId, text } = createUserQuestionDto;
 
-    if (!topicId) throw new BadRequestException('Topic ID is required for custom question');
+      if (!topicId) throw new BadRequestException('Topic ID is required for custom question');
 
-    const order = await this.getMergedQuestionsByTopic({
-      userId,
-      topicId,
-    });
+      const order = await this.getMergedQuestionsByTopic(userId, topicId);
 
-    const nextOrder = order.length + 1;
+      const nextOrder = order.length + 1;
 
-    return this.userQuestionRepository.create({
-      userId,
-      topicId,
-      text,
-      order: nextOrder,
-    });
+      return this.userQuestionRepository.create({
+        userId,
+        topicId,
+        text,
+        order: nextOrder,
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to create question');
+    }
   }
 
-  async getMergedQuestionsByTopic(getMergeUserQuestionDto: GetMergeUserQuestionDto) {
-    const { topicId, userId } = getMergeUserQuestionDto;
+  async getMergedQuestionsByTopic(userId, topicId) {
+    try {
+      const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
 
-    const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
-
-    const userQuestions = await this.userQuestionRepository.findAll({
-      attributes: ['id', 'text', 'order', 'topicId', 'topicQuestionId'],
-      where: {
-        userId: userId,
-        [Op.or]: [{ topicId: topicId }, { '$topicQuestion.topicId$': topicId }],
-      },
-      include: [
-        {
-          model: TopicQuestion,
-          attributes: [],
-          include: [
-            {
-              model: Topic,
-              attributes: ['id'],
-            },
-          ],
+      const userQuestions = await this.userQuestionRepository.findAll({
+        attributes: ['id', 'text', 'order', 'topicId', 'topicQuestionId'],
+        where: {
+          userId: userId,
+          [Op.or]: [{ topicId: topicId }, { '$topicQuestion.topicId$': topicId }],
         },
-      ],
-      order: [['order', 'ASC']],
-    });
+        include: [
+          {
+            model: TopicQuestion,
+            attributes: [],
+            include: [
+              {
+                model: Topic,
+                attributes: ['id'],
+              },
+            ],
+          },
+        ],
+        order: [['order', 'ASC']],
+      });
 
-    const userQuestionsMap = userQuestions.reduce((acc, question) => {
-      acc[question.order] = question;
-      return acc;
-    }, {});
+      const userQuestionsMap = userQuestions.reduce((acc, question) => {
+        acc[question.order] = question;
+        return acc;
+      }, {});
 
-    const mergedQuestions = topicQuestions.map((topicQuestion) => {
-      const userQuestion = userQuestionsMap[topicQuestion.order];
-      return userQuestion || topicQuestion;
-    });
+      const mergedQuestions = topicQuestions.map((topicQuestion) => {
+        const userQuestion = userQuestionsMap[topicQuestion.order];
+        return userQuestion || topicQuestion;
+      });
 
-    const customQuestions = userQuestions.filter(
-      (question) => question.topicQuestionId === null && question.topicId === topicId,
-    );
+      const customQuestions = userQuestions.filter(
+        (question) => question.topicQuestionId === null && question.topicId === topicId,
+      );
 
-    return [...mergedQuestions, ...customQuestions];
+      return [...mergedQuestions, ...customQuestions];
+    } catch (error) {
+      throw new BadRequestException('Failed to get questions');
+    }
   }
 }

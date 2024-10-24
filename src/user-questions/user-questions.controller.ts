@@ -1,19 +1,20 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
-import { GetMergeUserQuestionDto } from './dto/get-merge-user-question.dto';
 import { OutputUserQuestionDto } from './dto/output-user-question.dto';
 import { UserQuestionsService } from './user-questions.service';
 
-@Controller('user-questions')
+@Controller('users/:userId/questions')
 export class UserQuestionsController {
   constructor(private readonly userQuestionsService: UserQuestionsService) {}
 
-  @Post('/merge-questions')
-  async getMergedQuestionsByTopic(@Body() getMergeUserQuestionDto: GetMergeUserQuestionDto) {
-    const questions =
-      await this.userQuestionsService.getMergedQuestionsByTopic(getMergeUserQuestionDto);
+  @Get()
+  async getMergedQuestionsByTopic(
+    @Param('userId', ParseIntPipe) userId: number, 
+    @Query('topicId', ParseIntPipe) topicId: number
+  ): Promise<OutputUserQuestionDto[]> {
+    const questions = await this.userQuestionsService.getMergedQuestionsByTopic(userId, topicId);
 
     return plainToInstance(OutputUserQuestionDto, questions, {
       excludeExtraneousValues: true,
@@ -21,11 +22,14 @@ export class UserQuestionsController {
   }
 
   @Post()
-  create(@Body() createUserQuestionDto: CreateUserQuestionDto) {
+  create(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() createUserQuestionDto: CreateUserQuestionDto
+  ) {
     if (createUserQuestionDto.topicQuestionId) {
-      return this.userQuestionsService.createDefaultQuestion(createUserQuestionDto);
-    } else {
-      return this.userQuestionsService.createCustomQuestion(createUserQuestionDto);
+      return this.userQuestionsService.createDefaultQuestion(createUserQuestionDto, userId);
     }
+
+    return this.userQuestionsService.createCustomQuestion(createUserQuestionDto, userId);
   }
 }
