@@ -28,13 +28,11 @@ export class TopicQuestionsService {
   findByTopic(topicId: number) {
     return this.topicQuestionRepository.findAll({
       where: { topicId },
-      attributes: { exclude: ['topicId'] },
-      include: [
-        {
-          model: Topic,
-          attributes: ['id', 'name'],
-        },
-      ],
+      attributes: { 
+        include: ['id', 'text', 'order'], 
+        exclude: ['topicId'] 
+      },
+      order: [['order', 'ASC']],
     });
   }
 

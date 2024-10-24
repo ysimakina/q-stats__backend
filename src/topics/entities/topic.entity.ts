@@ -1,6 +1,6 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
-
 import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
+import { UserQuestion } from 'src/user-questions/entities/user-question.entity';
 
 interface TopicCreactionAttrs {
   name: string;
@@ -13,4 +13,7 @@ export class Topic extends Model<Topic, TopicCreactionAttrs> {
 
   @HasMany(() => TopicQuestion)
   TopicQuestions: TopicQuestion[];
+
+  @HasMany(() => UserQuestion)
+  UserQuestion: UserQuestion[];
 }
