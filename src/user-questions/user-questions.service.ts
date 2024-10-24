@@ -15,10 +15,8 @@ export class UserQuestionsService {
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
-  async createDefaultQuestion(createUserQuestionDto: CreateUserQuestionDto, userId: number) {
+  async createDefaultQuestion({ topicQuestionId, text }: CreateUserQuestionDto, userId: number) {
     try {
-      const { topicQuestionId, text } = createUserQuestionDto;
-
       const userQuestion = await this.userQuestionRepository.findOne({
         attributes: ['order'],
         where: { userId },
@@ -38,10 +36,8 @@ export class UserQuestionsService {
     }
   }
 
-  async createCustomQuestion(createUserQuestionDto: CreateUserQuestionDto, userId: number) {
+  async createCustomQuestion({ topicId, text }: CreateUserQuestionDto, userId: number) {
     try {
-      const { topicId, text } = createUserQuestionDto;
-
       if (!topicId) throw new BadRequestException('Topic ID is required for custom question');
 
       const order = await this.getMergedQuestionsByTopic(userId, topicId);
