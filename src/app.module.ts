@@ -3,12 +3,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
 
-import { User } from './users/entities/user.entity';
 import { Topic } from './topics/entities/topic.entity';
+import { User } from './users/entities/user.entity';
 import { TopicQuestion } from './topic-questions/entities/topic-question.entity';
-import { UsersModule } from './users/users.module';
-import { TopicsModule } from './topics/topics.module';
+import { UserQuestion } from './user-questions/entities/user-question.entity';
 import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
+import { UserQuestionsModule } from './user-questions/user-questions.module';
+import { TopicsModule } from './topics/topics.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
-        models: [User, Topic, TopicQuestion],
+        models: [User, Topic, TopicQuestion, UserQuestion],
         autoLoadModels: true,
         synchronize: true,
       }),
@@ -33,6 +35,7 @@ import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
     UsersModule,
     TopicsModule,
     TopicQuestionsModule,
+    UserQuestionsModule,
   ],
 })
 export class AppModule {}
