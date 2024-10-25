@@ -50,14 +50,14 @@ export class UserQuestionsController {
   @Patch()
   update(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() { updateUserTopicQuestionDto, updateCustomQuestionDto }: UpdateUserQuestionDto,
+    @Body() { text, id, topicQuestionId }: UpdateUserQuestionDto,
   ) {
-    if (updateUserTopicQuestionDto) {
+    if (topicQuestionId) {
       return this.userQuestionsService.createOrUpdateDefaultQuestion(
-        updateUserTopicQuestionDto, userId
+        { topicQuestionId, text }, userId
       );
     }
 
-    return this.userQuestionsService.updateCustomQuestion(updateCustomQuestionDto);
+    return this.userQuestionsService.updateCustomQuestion({ id, text });
   }
 }
