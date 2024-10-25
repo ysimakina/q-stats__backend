@@ -4,9 +4,11 @@ import { Op } from 'sequelize';
 
 import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
 import { Topic } from 'src/topics/entities/topic.entity';
+import { UserQuestion } from './entities/user-question.entity';
 import { TopicQuestionsService } from 'src/topic-questions/topic-questions.service';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
-import { UserQuestion } from './entities/user-question.entity';
+import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
+import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
 
 @Injectable()
 export class UserQuestionsService {
@@ -15,24 +17,18 @@ export class UserQuestionsService {
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
-  async createDefaultQuestion({ topicQuestionId, text }: CreateUserQuestionDto, userId: number) {
+  async createOrUpdateDefaultQuestion({ topicQuestionId, text }: UpdateUserTopicQuestionDto, userId: number) {
     try {
-      const userQuestion = await this.userQuestionRepository.findOne({
-        attributes: ['order'],
-        where: { userId },
-        order: [['order', 'DESC']],
-      });
+      const userQuestion = await this.topicQuestionService.findOne(topicQuestionId);
 
-      const nextOrder = userQuestion ? userQuestion.order + 1 : 1;
-
-      return await this.userQuestionRepository.create({
+      return await this.userQuestionRepository.upsert({
         userId,
         topicQuestionId,
         text,
-        order: nextOrder,
+        order: userQuestion.order,
       });
     } catch (error) {
-      throw new BadRequestException('Failed to create question');
+      throw new BadRequestException('Failed to create or update question');
     }
   }
 
@@ -52,6 +48,17 @@ export class UserQuestionsService {
       });
     } catch (error) {
       throw new BadRequestException('Failed to create question');
+    }
+  }
+
+  async updateCustomQuestion({ id, text }: UpdateCustomQuestionDto) {
+    try {
+      await this.userQuestionRepository.update(
+        { text },
+        { where: { id } },
+      );
+    } catch (error) {
+      throw new BadRequestException('Failed to update question');
     }
   }
 
