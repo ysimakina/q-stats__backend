@@ -1,8 +1,19 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { 
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  Patch
+} from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { OutputUserQuestionDto } from './dto/output-user-question.dto';
+import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
+import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
 import { UserQuestionsService } from './user-questions.service';
 
 @Controller('users/:userId/questions')
@@ -11,8 +22,8 @@ export class UserQuestionsController {
 
   @Get()
   async getMergedQuestionsByTopic(
-    @Param('userId', ParseIntPipe) userId: number, 
-    @Query('topicId', ParseIntPipe) topicId: number
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('topicId', ParseIntPipe) topicId: number,
   ): Promise<OutputUserQuestionDto[]> {
     const questions = await this.userQuestionsService.getMergedQuestionsByTopic(userId, topicId);
 
@@ -22,14 +33,27 @@ export class UserQuestionsController {
   }
 
   @Post()
-  create(
+  async create(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() createUserQuestionDto: CreateUserQuestionDto
+    @Body() createUserQuestionDto: CreateUserQuestionDto,
+  ): Promise<OutputUserQuestionDto> {
+    const question = await this.userQuestionsService.createCustomQuestion(createUserQuestionDto, userId);
+
+    return plainToInstance(OutputUserQuestionDto, question, {
+      excludeExtraneousValues: true,
+    });
+  }
+  
+  @Patch()
+  update(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() updateUserTopicQuestionDto: UpdateUserTopicQuestionDto,
+    @Body() updateCustomQuestionDto: UpdateCustomQuestionDto,
   ) {
-    if (createUserQuestionDto.topicQuestionId) {
-      return this.userQuestionsService.createDefaultQuestion(createUserQuestionDto, userId);
+    if (updateUserTopicQuestionDto.topicQuestionId) {
+      return this.userQuestionsService.createOrUpdateDefaultQuestion(updateUserTopicQuestionDto, userId);
     }
 
-    return this.userQuestionsService.createCustomQuestion(createUserQuestionDto, userId);
+    return this.userQuestionsService.updateCustomQuestion(updateCustomQuestionDto);
   }
 }
