@@ -1,12 +1,4 @@
-import { Expose, Type } from 'class-transformer';
-
-class TopicDto {
-  @Expose()
-  readonly id: number;
-
-  @Expose()
-  readonly name: string;
-}
+import { Expose } from 'class-transformer';
 
 export class OutputGetTopicQuestionDto {
   @Expose()
@@ -17,8 +9,4 @@ export class OutputGetTopicQuestionDto {
 
   @Expose()
   readonly order: number;
-
-  @Type(() => TopicDto)
-  @Expose()
-  readonly topic: TopicDto;
 }
