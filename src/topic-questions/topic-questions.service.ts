@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 import { Topic } from 'src/topics/entities/topic.entity';
@@ -13,68 +13,67 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findAll() {
-    return this.topicQuestionRepository.findAll({
-      attributes: { exclude: ['topicId'] },
-      include: [
-        {
-          model: Topic,
-          attributes: ['id', 'name'],
-        },
-      ],
-    });
-  }
-
   findByTopic(topicId: number) {
     return this.topicQuestionRepository.findAll({
       where: { topicId },
-      attributes: { 
-        include: ['id', 'text', 'order'], 
+      attributes: {
+        include: ['id', 'text', 'order'],
       },
       order: [['order', 'ASC']],
     });
   }
 
   async findOne(id: number) {
-    const question = await this.topicQuestionRepository.findByPk(id, {
-      attributes: { exclude: ['topicId'] },
-      include: [
-        {
-          model: Topic,
-          attributes: ['id', 'name'],
-        },
-      ],
-    });
-
-    if (!question) {
-      throw new NotFoundException(`Question with ID ${id} not found`);
+    try {
+      const question = await this.topicQuestionRepository.findByPk(id, {
+        attributes: { exclude: ['topicId'] },
+        include: [
+          {
+            model: Topic,
+            attributes: ['id', 'name'],
+          },
+        ],
+      });
+  
+      if (!question) {
+        throw new NotFoundException(`Question with ID ${id} not found`);
+      }
+  
+      return question;
+    } catch (error) {
+      throw new BadRequestException('Failed to get question');
     }
-
-    return question;
   }
 
-  async create(dto: CreateTopicQuestionDto) {
-    const { topicId } = dto;
+  async create(dto: CreateTopicQuestionDto, topicId) {
+    try {
+      const topicQuestions = await this.findByTopic(topicId);
 
-    const topicQuestions = await this.findByTopic(topicId);
+      const order = topicQuestions.length + 1;
 
-    const order = topicQuestions.length + 1;
+      const question = await this.topicQuestionRepository.create({
+        ...dto,
+        topicId,
+        order,
+      });
 
-    const question = await this.topicQuestionRepository.create({
-      ...dto,
-      order: order,
-    });
-
-    return question;
+      return question;
+    } catch (error) {
+      throw new BadRequestException('Failed to create question');
+    }
   }
 
   async update(id: number, dto: UpdateTopicQuestionDto) {
-    const question = await this.topicQuestionRepository.findByPk(id);
+    try {
+      const question = await this.topicQuestionRepository.findByPk(id);
 
-    if (!question) {
-      throw new NotFoundException(`Question with ID topic ${id} not found`);
+      if (!question) {
+        throw new NotFoundException(`Question with ID topic ${id} not found`);
+      }
+
+      question.update({ ...dto });
+    } catch (error) {
+      throw new BadRequestException('Failed to update question');
     }
-
-    question.update(dto);
   }
 }

@@ -15,20 +15,11 @@ import { OutputGetTopicQuestionDto } from './dto/output-get-topic-question.dto';
 import { OutputCreateTopicQuestionDto } from './dto/output-create-topic-question.dto';
 import { TopicQuestionsService } from './topic-questions.service';
 
-@Controller('topic-questions')
+@Controller('topic/:id/questions')
 export class TopicQuestionsController {
   constructor(private readonly topicQuestionsService: TopicQuestionsService) {}
 
   @Get()
-  async findAll(): Promise<OutputGetTopicQuestionDto[]> {
-    const questions = await this.topicQuestionsService.findAll();
-
-    return plainToInstance(OutputGetTopicQuestionDto, questions, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  @Get('by-topic/:id')
   async findByTopic(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<OutputGetTopicQuestionDto[]> {
@@ -39,11 +30,11 @@ export class TopicQuestionsController {
     });
   }
 
-  @Get(':id')
+  @Get(':questionId')
   async findOne(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('questionId', ParseIntPipe) questionId: number,
   ): Promise<OutputGetTopicQuestionDto> {
-    const question = await this.topicQuestionsService.findOne(id);
+    const question = await this.topicQuestionsService.findOne(questionId);
 
     return plainToInstance(OutputGetTopicQuestionDto, question, {
       excludeExtraneousValues: true,
@@ -52,20 +43,21 @@ export class TopicQuestionsController {
 
   @Post()
   async create(
+    @Param('id', ParseIntPipe) topicId: number,
     @Body() dto: CreateTopicQuestionDto,
   ): Promise<OutputCreateTopicQuestionDto> {
-    const question = await this.topicQuestionsService.create(dto);
+    const question = await this.topicQuestionsService.create(dto, topicId);
 
     return plainToInstance(OutputCreateTopicQuestionDto, question, {
       excludeExtraneousValues: true,
     });
   }
 
-  @Patch(':id')
+  @Patch(':questionId')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('questionId', ParseIntPipe) questionId: number,
     @Body() dto: UpdateTopicQuestionDto,
   ) {
-    return this.topicQuestionsService.update(id, dto);
+    return this.topicQuestionsService.update(questionId, dto);
   }
 }
