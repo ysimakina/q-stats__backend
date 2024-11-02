@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber, IsString } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsNotEmpty, MinLength } from 'class-validator';
 
 export class UpdateUserQuestionDto {
   @IsOptional()
@@ -9,6 +9,8 @@ export class UpdateUserQuestionDto {
   @IsNumber()
   id?: number;
 
-  @IsString()
-  text: string;
+  @IsString({ message: 'Text must be a string' })
+  @IsNotEmpty({ message: 'Text cannot be empty' })
+  @MinLength(1, { message: 'Text must contain at least 1 character' })
+  readonly text: string;
 }
