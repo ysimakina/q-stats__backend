@@ -42,6 +42,7 @@ export class UserQuestionsController {
       createUserQuestionDto, userId
     );
 
+    console.log(1111)
     return plainToInstance(OutputUserQuestionDto, question, {
       excludeExtraneousValues: true,
     });

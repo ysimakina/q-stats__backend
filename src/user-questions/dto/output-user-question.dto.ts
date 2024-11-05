@@ -1,12 +1,18 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+
+import { OutputCreateOrUpdateDto } from 'src/answers/dto/output-createOrUpdate.dto';
 
 export class OutputUserQuestionDto {
   @Expose()
-  readonly id: number;
+  id: number;
 
   @Expose()
-  readonly text: string;
+  text: string;
 
   @Expose()
-  readonly order: number;
+  order: number;
+
+  @Expose()
+  @Type(() => OutputCreateOrUpdateDto)
+  answers: OutputCreateOrUpdateDto[]
 }

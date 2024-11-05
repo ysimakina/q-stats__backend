@@ -3,13 +3,16 @@ import {
   BelongsTo,
   Column,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+
 import { User } from '../../users/entities/user.entity';
 import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
 import { Topic } from 'src/topics/entities/topic.entity';
+import { Answer } from 'src/answers/entities/answer.entity';
 
 @Table({ tableName: 'UserQuestions', timestamps: false, underscored: true })
 export class UserQuestion extends Model<UserQuestion> {
@@ -40,4 +43,7 @@ export class UserQuestion extends Model<UserQuestion> {
 
   @BelongsTo(() => TopicQuestion)
   topicQuestion: TopicQuestion;
+
+  @HasMany(() => Answer)
+  answers: Answer[];
 }

@@ -9,6 +9,7 @@ import { TopicQuestionsService } from 'src/topic-questions/topic-questions.servi
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
+import { Answer } from 'src/answers/entities/answer.entity';
 
 @Injectable()
 export class UserQuestionsService {
@@ -17,7 +18,10 @@ export class UserQuestionsService {
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
-  async createOrUpdateDefaultQuestion({ topicQuestionId, text }: UpdateUserTopicQuestionDto, userId: number) {
+  async createOrUpdateDefaultQuestion(
+    { topicQuestionId, text }: UpdateUserTopicQuestionDto,
+    userId: number,
+  ) {
     try {
       const userQuestion = await this.topicQuestionService.findOne(topicQuestionId);
 
@@ -53,10 +57,7 @@ export class UserQuestionsService {
 
   async updateCustomQuestion({ id, text }: UpdateCustomQuestionDto) {
     try {
-      await this.userQuestionRepository.update(
-        { text },
-        { where: { id } },
-      );
+      await this.userQuestionRepository.update({ text }, { where: { id } });
     } catch (error) {
       throw new BadRequestException('Failed to update question');
     }
@@ -83,6 +84,10 @@ export class UserQuestionsService {
               },
             ],
           },
+          {
+            model: Answer,
+            attributes: ['id', 'response', 'date'],
+          },
         ],
         order: [['order', 'ASC']],
       });
@@ -103,7 +108,7 @@ export class UserQuestionsService {
 
       return [...mergedQuestions, ...customQuestions];
     } catch (error) {
-      throw new BadRequestException('Failed to get questions');
+      throw new BadRequestException('Failed to get questions', error.message);
     }
   }
 }
