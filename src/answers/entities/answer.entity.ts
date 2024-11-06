@@ -6,7 +6,7 @@ import {
   Table
 } from 'sequelize-typescript';
 
-import { UserQuestion } from 'src/user-questions/entities/user-question.entity';
+import { UserQuestion } from '../../user-questions/entities/user-question.entity';
 
 interface AnswerCreactionAttrs {
   response: boolean;

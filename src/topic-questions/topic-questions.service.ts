@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { Topic } from 'src/topics/entities/topic.entity';
+import { Topic } from '../topics/entities/topic.entity';
 import { TopicQuestion } from './entities/topic-question.entity';
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
 import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';

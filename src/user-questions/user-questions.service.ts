@@ -2,14 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 
-import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
-import { Topic } from 'src/topics/entities/topic.entity';
+import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
+import { Topic } from '../topics/entities/topic.entity';
+import { Answer } from '../answers/entities/answer.entity';
 import { UserQuestion } from './entities/user-question.entity';
-import { TopicQuestionsService } from 'src/topic-questions/topic-questions.service';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
-import { Answer } from 'src/answers/entities/answer.entity';
+import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
 
 @Injectable()
 export class UserQuestionsService {

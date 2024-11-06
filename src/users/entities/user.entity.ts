@@ -1,7 +1,7 @@
 import { BelongsToMany, Column, Model, Table } from 'sequelize-typescript';
 
 import { UserQuestion } from '../../user-questions/entities/user-question.entity';
-import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
+import { TopicQuestion } from '../../topic-questions/entities/topic-question.entity';
 
 interface UserCreactionAttrs {
   name: string;

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 
-import { TopicQuestionsModule } from 'src/topic-questions/topic-questions.module';
+import { TopicQuestionsModule } from '../topic-questions/topic-questions.module';
 import { UserQuestion } from './entities/user-question.entity';
 import { UserQuestionsController } from './user-questions.controller';
 import { UserQuestionsService } from './user-questions.service';
