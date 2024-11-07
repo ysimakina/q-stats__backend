@@ -2,13 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 
-import { TopicQuestion } from 'src/topic-questions/entities/topic-question.entity';
-import { Topic } from 'src/topics/entities/topic.entity';
+import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
+import { Topic } from '../topics/entities/topic.entity';
+import { Answer } from '../answers/entities/answer.entity';
 import { UserQuestion } from './entities/user-question.entity';
-import { TopicQuestionsService } from 'src/topic-questions/topic-questions.service';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
+import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
 
 @Injectable()
 export class UserQuestionsService {
@@ -17,7 +18,10 @@ export class UserQuestionsService {
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
-  async createOrUpdateDefaultQuestion({ topicQuestionId, text }: UpdateUserTopicQuestionDto, userId: number) {
+  async createOrUpdateDefaultQuestion(
+    { topicQuestionId, text }: UpdateUserTopicQuestionDto,
+    userId: number,
+  ) {
     try {
       const userQuestion = await this.topicQuestionService.findOne(topicQuestionId);
 
@@ -53,10 +57,7 @@ export class UserQuestionsService {
 
   async updateCustomQuestion({ id, text }: UpdateCustomQuestionDto) {
     try {
-      await this.userQuestionRepository.update(
-        { text },
-        { where: { id } },
-      );
+      await this.userQuestionRepository.update({ text }, { where: { id } });
     } catch (error) {
       throw new BadRequestException('Failed to update question');
     }
@@ -83,6 +84,10 @@ export class UserQuestionsService {
               },
             ],
           },
+          {
+            model: Answer,
+            attributes: ['id', 'response', 'date'],
+          },
         ],
         order: [['order', 'ASC']],
       });
@@ -103,7 +108,7 @@ export class UserQuestionsService {
 
       return [...mergedQuestions, ...customQuestions];
     } catch (error) {
-      throw new BadRequestException('Failed to get questions');
+      throw new BadRequestException('Failed to get questions', error.message);
     }
   }
 }

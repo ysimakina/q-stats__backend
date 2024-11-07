@@ -11,6 +11,8 @@ import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
 import { UserQuestionsModule } from './user-questions/user-questions.module';
 import { TopicsModule } from './topics/topics.module';
 import { UsersModule } from './users/users.module';
+import { AnswersModule } from './answers/answers.module';
+import { Answer } from './answers/entities/answer.entity';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
-        models: [User, Topic, TopicQuestion, UserQuestion],
+        models: [User, Topic, TopicQuestion, UserQuestion, Answer],
         autoLoadModels: true,
         synchronize: true,
       }),
@@ -36,6 +38,7 @@ import { UsersModule } from './users/users.module';
     TopicsModule,
     TopicQuestionsModule,
     UserQuestionsModule,
+    AnswersModule,
   ],
 })
 export class AppModule {}
