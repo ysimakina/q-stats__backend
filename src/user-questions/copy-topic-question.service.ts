@@ -15,6 +15,7 @@ export class CopyTopicQuestionsService {
     const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
 
     const userQuestions = await this.userQuestionRepository.findAll({
+      attributes: ['id', 'text', 'order', 'userId', 'topicQuestionId', 'topicId' ],
       where: { userId, topicQuestionId: topicQuestions.map((question) => question.id) },
     });
 

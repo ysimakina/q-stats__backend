@@ -55,6 +55,12 @@ export class UserQuestionsService {
       });
 
       await this.answersService.createEmptyAnswerForUserQuestion(createdQuestion.id);
+
+      return await this.userQuestionRepository.findOne({
+        attributes: ['id', 'text', 'order'],
+        where: { id: createdQuestion.id },
+        include: [{ model: Answer, attributes: ['id', 'response', 'date'] }],
+      });
     } catch (error) {
       throw new BadRequestException('Failed to create question');
     }
