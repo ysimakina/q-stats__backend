@@ -6,6 +6,7 @@ import {
   Model, 
   Table 
 } from 'sequelize-typescript';
+
 import { Topic } from 'src/topics/entities/topic.entity';
 import { UserQuestion } from 'src/user-questions/entities/user-question.entity';
 import { User } from 'src/users/entities/user.entity';
