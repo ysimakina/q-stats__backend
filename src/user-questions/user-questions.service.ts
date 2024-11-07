@@ -5,17 +5,19 @@ import { Op } from 'sequelize';
 import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
 import { Topic } from '../topics/entities/topic.entity';
 import { Answer } from '../answers/entities/answer.entity';
+import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
+import { AnswersService } from '../answers/answers.service';
 import { UserQuestion } from './entities/user-question.entity';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
-import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
 
 @Injectable()
 export class UserQuestionsService {
   constructor(
     @InjectModel(UserQuestion) private userQuestionRepository: typeof UserQuestion,
     private readonly topicQuestionService: TopicQuestionsService,
+    private readonly answersService: AnswersService,
   ) {}
 
   async createOrUpdateDefaultQuestion(
@@ -31,6 +33,7 @@ export class UserQuestionsService {
         text,
         order: userQuestion.order,
       });
+
     } catch (error) {
       throw new BadRequestException('Failed to create or update question');
     }
@@ -44,12 +47,14 @@ export class UserQuestionsService {
 
       const nextOrder = order.length + 1;
 
-      return this.userQuestionRepository.create({
+      const createdQuestion = await this.userQuestionRepository.create({
         userId,
         topicId,
         text,
         order: nextOrder,
       });
+
+      await this.answersService.createEmptyAnswerForUserQuestion(createdQuestion.id);
     } catch (error) {
       throw new BadRequestException('Failed to create question');
     }
