@@ -5,15 +5,11 @@ import { TopicQuestionsModule } from '../topic-questions/topic-questions.module'
 import { UserQuestion } from './entities/user-question.entity';
 import { UserQuestionsController } from './user-questions.controller';
 import { UserQuestionsService } from './user-questions.service';
-import { CopyTopicQuestionsService } from './copy-topic-question.service';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([UserQuestion]),
-    TopicQuestionsModule
-  ],
+  imports: [SequelizeModule.forFeature([UserQuestion]), TopicQuestionsModule],
   controllers: [UserQuestionsController],
-  providers: [UserQuestionsService, CopyTopicQuestionsService],
-  exports: [CopyTopicQuestionsService, CopyTopicQuestionsService],
+  providers: [UserQuestionsService],
+  exports: [UserQuestionsService],
 })
 export class UserQuestionsModule {}

@@ -112,4 +112,26 @@ export class UserQuestionsService {
       throw new BadRequestException('Failed to get questions', error.message);
     }
   }
+
+  async copyQuestions(topicId: number, userId: number) {
+    const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
+
+    const userQuestions = await this.userQuestionRepository.findAll({
+      attributes: ['id', 'text', 'order', 'userId', 'topicQuestionId', 'topicId' ],
+      where: { userId, topicQuestionId: topicQuestions.map((question) => question.id) },
+    });
+
+    if (userQuestions.length) return;
+
+    const userQuestionsData = topicQuestions.map((question) => ({
+      id: question.id,
+      text: question.text,
+      order: question.order,
+      userId: userId,
+      topicQuestionId: question.id,
+      topicId: question.topicId,
+    }));
+
+    this.userQuestionRepository.bulkCreate(userQuestionsData);
+  }
 }
