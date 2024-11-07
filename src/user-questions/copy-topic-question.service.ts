@@ -19,7 +19,7 @@ export class CopyTopicQuestionsService {
       where: { userId, topicQuestionId: topicQuestions.map((question) => question.id) },
     });
 
-    if (userQuestions.length) return [];
+    if (userQuestions.length) return;
 
     const userQuestionsData = topicQuestions.map((question) => ({
       id: question.id,
@@ -30,10 +30,6 @@ export class CopyTopicQuestionsService {
       topicId: question.topicId,
     }));
 
-    const createdUserQuestions = await this.userQuestionRepository.bulkCreate(userQuestionsData, {
-      returning: true,
-    });
-
-    return createdUserQuestions.map((question) => question.id);
+    this.userQuestionRepository.bulkCreate(userQuestionsData);
   }
 }

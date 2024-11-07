@@ -19,11 +19,7 @@ export class AnswersController {
     @Query('userId', ParseIntPipe) userId: number,
     @Query('topicId', ParseIntPipe) topicId: number,
   ) {
-    const userQuestionIds = await this.copyTopicQuestionsService.copyQuestions(topicId, userId);
-
-    if (userQuestionIds.length) {
-      await this.answersService.createEmptyAnswersForUserQuestions(userQuestionIds);
-    }
+    await this.copyTopicQuestionsService.copyQuestions(topicId, userId);
 
     const answer = await this.answersService.createOrUpdate(createAnswerDto);
 

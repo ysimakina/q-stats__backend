@@ -6,7 +6,6 @@ import { TopicQuestion } from '../topic-questions/entities/topic-question.entity
 import { Topic } from '../topics/entities/topic.entity';
 import { Answer } from '../answers/entities/answer.entity';
 import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
-import { AnswersService } from '../answers/answers.service';
 import { UserQuestion } from './entities/user-question.entity';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
@@ -17,7 +16,6 @@ export class UserQuestionsService {
   constructor(
     @InjectModel(UserQuestion) private userQuestionRepository: typeof UserQuestion,
     private readonly topicQuestionService: TopicQuestionsService,
-    private readonly answersService: AnswersService,
   ) {}
 
   async createOrUpdateDefaultQuestion(
@@ -47,19 +45,11 @@ export class UserQuestionsService {
 
       const nextOrder = order.length + 1;
 
-      const createdQuestion = await this.userQuestionRepository.create({
+      return await this.userQuestionRepository.create({
         userId,
         topicId,
         text,
         order: nextOrder,
-      });
-
-      await this.answersService.createEmptyAnswerForUserQuestion(createdQuestion.id);
-
-      return await this.userQuestionRepository.findOne({
-        attributes: ['id', 'text', 'order'],
-        where: { id: createdQuestion.id },
-        include: [{ model: Answer, attributes: ['id', 'response', 'date'] }],
       });
     } catch (error) {
       throw new BadRequestException('Failed to create question');
