@@ -11,7 +11,6 @@ import { UserQuestion } from '../../user-questions/entities/user-question.entity
 import { Topic } from '../../topics/entities/topic.entity';
 import { User } from '../../users/entities/user.entity';
 
-
 @Table({ tableName: 'TopicQuestion', timestamps: false })
 export class TopicQuestion extends Model {
   @Column
