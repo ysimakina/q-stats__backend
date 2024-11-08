@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 
@@ -10,11 +10,13 @@ import { UserQuestion } from './entities/user-question.entity';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UserQuestionsService {
   constructor(
     @InjectModel(UserQuestion) private userQuestionRepository: typeof UserQuestion,
+    @Inject(Sequelize) private sequelize: Sequelize,
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
 
@@ -113,15 +115,20 @@ export class UserQuestionsService {
   }
 
   async copyQuestions(topicId: number, userId: number) {
+    const transaction = await this.sequelize.transaction();
     try {
       const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
 
       const userQuestions = await this.userQuestionRepository.findAll({
         attributes: ['id', 'topicQuestionId', 'userId'],
         where: { topicId },
+        transaction,
       });
 
-      if (userQuestions.length) return userQuestions;
+      if (userQuestions.length) {
+        await transaction.rollback();
+        return;
+      }
 
       const userQuestionsData = topicQuestions.map((question) => ({
         text: question.text,
@@ -133,15 +140,19 @@ export class UserQuestionsService {
 
       const createdQuestions = await this.userQuestionRepository.bulkCreate(userQuestionsData, {
         returning: true,
+        transaction,
       });
 
+      await transaction.commit();
       return createdQuestions;
     } catch (error) {
+      console.error(error.message)
+      await transaction.commit();
       throw new BadRequestException('Failed to copy questions');
     }
   }
 
-  async verifyUserQuestionExists(userQuestionId: number) {
+  verifyUserQuestionExists(userQuestionId: number) {
     return this.userQuestionRepository.findOne({
       where: { id: userQuestionId },
     });
