@@ -31,7 +31,6 @@ export class UserQuestionsService {
         text,
         order: userQuestion.order,
       });
-
     } catch (error) {
       throw new BadRequestException('Failed to create or update question');
     }
@@ -87,7 +86,7 @@ export class UserQuestionsService {
           },
           {
             model: Answer,
-            attributes: ['id', 'response', 'date'],
+            attributes: ['id', 'response', 'createdAt'],
           },
         ],
         order: [['order', 'ASC']],
@@ -109,29 +108,42 @@ export class UserQuestionsService {
 
       return [...mergedQuestions, ...customQuestions];
     } catch (error) {
-      throw new BadRequestException('Failed to get questions', error.message);
+      throw new BadRequestException('Failed to get questions');
     }
   }
 
   async copyQuestions(topicId: number, userId: number) {
-    const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
+    try {
+      const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
 
-    const userQuestions = await this.userQuestionRepository.findAll({
-      attributes: ['id', 'text', 'order', 'userId', 'topicQuestionId', 'topicId' ],
-      where: { userId, topicQuestionId: topicQuestions.map((question) => question.id) },
+      const userQuestions = await this.userQuestionRepository.findAll({
+        attributes: ['id', 'topicQuestionId', 'userId'],
+        where: { topicId },
+      });
+
+      if (userQuestions.length) return userQuestions;
+
+      const userQuestionsData = topicQuestions.map((question) => ({
+        text: question.text,
+        order: question.order,
+        userId: userId,
+        topicQuestionId: question.id,
+        topicId: question.topicId,
+      }));
+
+      const createdQuestions = await this.userQuestionRepository.bulkCreate(userQuestionsData, {
+        returning: true,
+      });
+
+      return createdQuestions;
+    } catch (error) {
+      throw new BadRequestException('Failed to copy questions');
+    }
+  }
+
+  async verifyUserQuestionExists(userQuestionId: number) {
+    return this.userQuestionRepository.findOne({
+      where: { id: userQuestionId },
     });
-
-    if (userQuestions.length) return;
-
-    const userQuestionsData = topicQuestions.map((question) => ({
-      id: question.id,
-      text: question.text,
-      order: question.order,
-      userId: userId,
-      topicQuestionId: question.id,
-      topicId: question.topicId,
-    }));
-
-    this.userQuestionRepository.bulkCreate(userQuestionsData);
   }
 }

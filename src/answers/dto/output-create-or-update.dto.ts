@@ -8,5 +8,5 @@ export class OutputCreateOrUpdateDto {
   readonly response: string;
 
   @Expose()
-  readonly date: number;
+  readonly createdAt: number;
 }

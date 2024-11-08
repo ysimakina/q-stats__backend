@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
@@ -10,17 +11,16 @@ export class AnswersService {
 
   async createOrUpdate(createAnswerDto: CreateAnswerDto) {
     try {
-      const currentDate = new Date().toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      const startDate = createAnswerDto.date.setHours(0, 0, 0, 0);
+      const endDate = createAnswerDto.date.setHours(23, 59, 59, 999);
 
       const existingAnswer = await this.answerRepository.findOne({
-        attributes: ['id', 'userQuestionId', 'response', 'date'],
+        attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
         where: {
           userQuestionId: createAnswerDto.userQuestionId,
-          date: currentDate,
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
         },
       });
 
@@ -32,15 +32,15 @@ export class AnswersService {
         return updatedAnswers;
       }
 
-      return await this.answerRepository.create({ ...createAnswerDto, date: currentDate });
+      return await this.answerRepository.create(createAnswerDto);
     } catch (error) {
-      throw new BadRequestException('Failed to create or update answer');
+      throw new BadRequestException({ message: 'Failed to create or update answer' })
     }
   }
 
   findAll() {
     return this.answerRepository.findAll({
-      attributes: ['id', 'userQuestionId', 'response', 'date'],
+      attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
       order: [['id', 'ASC']],
     });
   }
