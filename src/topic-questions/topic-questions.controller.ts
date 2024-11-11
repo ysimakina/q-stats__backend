@@ -20,10 +20,8 @@ export class TopicQuestionsController {
   constructor(private readonly topicQuestionsService: TopicQuestionsService) {}
 
   @Get()
-  async findByTopic(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<OutputGetTopicQuestionDto[]> {
-    const questions = await this.topicQuestionsService.findByTopic(id);
+  async findByTopic(@Param('id', ParseIntPipe) id: number): Promise<OutputGetTopicQuestionDto[]> {
+    const questions = await this.topicQuestionsService.findByTopic({ topicId: id });
 
     return plainToInstance(OutputGetTopicQuestionDto, questions, {
       excludeExtraneousValues: true,

@@ -67,13 +67,13 @@ export class UserQuestionsService {
 
   async getMergedQuestionsByTopic(userId, topicId) {
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
+      const topicQuestions = await this.topicQuestionService.findByTopic({ topicId });
 
       const userQuestions = await this.userQuestionRepository.findAll({
         attributes: ['id', 'text', 'order', 'topicId', 'topicQuestionId'],
         where: {
           userId: userId,
-          [Op.or]: [{ topicId: topicId }, { '$topicQuestion.topicId$': topicId }],
+          [Op.or]: [{ topicId }, { '$topicQuestion.topicId$': topicId }],
         },
         include: [
           {
