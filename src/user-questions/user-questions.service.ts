@@ -117,18 +117,15 @@ export class UserQuestionsService {
   async copyQuestions(topicId: number, userId: number) {
     const transaction = await this.sequelize.transaction();
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic(topicId);
+      const topicQuestions = await this.topicQuestionService.findByTopic({ topicId });
 
       const userQuestions = await this.userQuestionRepository.findAll({
         attributes: ['id', 'topicQuestionId', 'userId'],
-        where: { topicId },
+        where: { topicId, userId },
         transaction,
       });
 
-      if (userQuestions.length) {
-        await transaction.rollback();
-        return;
-      }
+      if (userQuestions.length) return;
 
       const userQuestionsData = topicQuestions.map((question) => ({
         text: question.text,
@@ -146,7 +143,6 @@ export class UserQuestionsService {
       await transaction.commit();
       return createdQuestions;
     } catch (error) {
-      console.error(error.message)
       await transaction.commit();
       throw new BadRequestException('Failed to copy questions');
     }

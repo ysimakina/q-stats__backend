@@ -7,15 +7,20 @@ import { Topic } from './entities/topic.entity';
 export class TopicsService {
   constructor(@InjectModel(Topic) private userRepository: typeof Topic) {}
 
-  findAll() {
+  findAll(attributes: string[] = ['id', 'name'], where = {}, include = [], order = []) {
     return this.userRepository.findAll({
-      attributes: ['id', 'name'],
+      attributes,
+      where,
+      include,
+      order,
     });
   }
 
-  findOne(id: number) {
+  findOne(id: number, attributes: string[] = ['id', 'name'], include = [], order = []) {
     return this.userRepository.findByPk(id, {
-      attributes: ['id', 'name'],
+      attributes: attributes,
+      include,
+      order,
     });
   }
 }

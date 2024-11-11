@@ -7,11 +7,19 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
-  findAll() {
-    return this.userRepository.findAll({ attributes: ['id', 'name'] });
+  findAll(attributes: string[] = ['id', 'name'], where = {}, include = [], order = []) {
+    return this.userRepository.findAll({
+      attributes,
+      where,
+      include,
+      order,
+    });
   }
 
-  findOne(id: number) {
-    return this.userRepository.findByPk(id);
+  findOne(id: number, attributes: string[] = ['id', 'name'], include = []) {
+    return this.userRepository.findByPk(id, {
+      attributes,
+      include,
+    });
   }
 }

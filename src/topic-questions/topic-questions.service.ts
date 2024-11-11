@@ -13,9 +13,9 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findByTopic(topicId: number) {
+  findByTopic(where = {}) {
     return this.topicQuestionRepository.findAll({
-      where: { topicId },
+      where,
       attributes: {
         include: ['id', 'text', 'order'],
       },
@@ -34,11 +34,11 @@ export class TopicQuestionsService {
           },
         ],
       });
-  
+
       if (!question) {
         throw new NotFoundException(`Question with ID ${id} not found`);
       }
-  
+
       return question;
     } catch (error) {
       throw new BadRequestException('Failed to get question');
@@ -47,7 +47,7 @@ export class TopicQuestionsService {
 
   async create(dto: CreateTopicQuestionDto, topicId) {
     try {
-      const topicQuestions = await this.findByTopic(topicId);
+      const topicQuestions = await this.findByTopic({ topicId });
 
       const order = topicQuestions.length + 1;
 
