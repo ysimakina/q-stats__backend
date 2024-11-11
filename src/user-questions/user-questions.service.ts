@@ -103,7 +103,6 @@ export class UserQuestionsService {
       const userQuestions = await this.userQuestionRepository.findAll({
         attributes: ['id', 'topicQuestionId', 'userId'],
         where: { topicId, userId },
-        transaction,
       });
 
       if (userQuestions.length) return;
@@ -124,7 +123,7 @@ export class UserQuestionsService {
       await transaction.commit();
       return createdQuestions;
     } catch (error) {
-      await transaction.commit();
+      await transaction.rollback();
       throw new BadRequestException('Failed to copy questions', error.message);
     }
   }
