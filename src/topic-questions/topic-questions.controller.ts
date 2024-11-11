@@ -1,18 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
-import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
-import { OutputGetTopicQuestionDto } from './dto/output-get-topic-question.dto';
 import { OutputCreateTopicQuestionDto } from './dto/output-create-topic-question.dto';
+import { OutputGetTopicQuestionDto } from './dto/output-get-topic-question.dto';
+import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
 import { TopicQuestionsService } from './topic-questions.service';
 
 @Controller('topic/:id/questions')

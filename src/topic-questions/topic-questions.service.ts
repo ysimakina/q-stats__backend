@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { FindAttributeOptions, IncludeOptions, Order, WhereOptions } from 'sequelize';
 
-import { Topic } from '../topics/entities/topic.entity';
-import { TopicQuestion } from './entities/topic-question.entity';
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
 import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
+import { TopicQuestion } from './entities/topic-question.entity';
+import { Topic } from '../topics/entities/topic.entity';
 
 @Injectable()
 export class TopicQuestionsService {
@@ -13,26 +14,34 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findByTopic(where = {}) {
+  findByTopic(
+    where: WhereOptions = {},
+    attributes: FindAttributeOptions = ['id', 'text', 'order'],
+    order: Order = [['order', 'ASC']],
+  ) {
     return this.topicQuestionRepository.findAll({
       where,
-      attributes: {
-        include: ['id', 'text', 'order'],
-      },
-      order: [['order', 'ASC']],
+      attributes,
+      order,
     });
   }
 
-  async findOne(id: number) {
+  async findOne(
+    id: number,
+    attributes: FindAttributeOptions = { exclude: ['topicId'] },
+    include: IncludeOptions[] = [
+      {
+        model: Topic,
+        attributes: ['id', 'name'],
+      },
+    ],
+    order: Order = [],
+  ) {
     try {
       const question = await this.topicQuestionRepository.findByPk(id, {
-        attributes: { exclude: ['topicId'] },
-        include: [
-          {
-            model: Topic,
-            attributes: ['id', 'name'],
-          },
-        ],
+        attributes,
+        include,
+        order,
       });
 
       if (!question) {
@@ -41,7 +50,7 @@ export class TopicQuestionsService {
 
       return question;
     } catch (error) {
-      throw new BadRequestException('Failed to get question');
+      throw new BadRequestException('Failed to get question', error.message);
     }
   }
 
@@ -59,7 +68,7 @@ export class TopicQuestionsService {
 
       return question;
     } catch (error) {
-      throw new BadRequestException('Failed to create question');
+      throw new BadRequestException('Failed to create question', error.message);
     }
   }
 
@@ -73,7 +82,7 @@ export class TopicQuestionsService {
 
       question.update({ ...dto });
     } catch (error) {
-      throw new BadRequestException('Failed to update question');
+      throw new BadRequestException('Failed to update question', error.message);
     }
   }
 }

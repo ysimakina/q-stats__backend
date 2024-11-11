@@ -1,16 +1,15 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
-
-import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
-import { Topic } from '../topics/entities/topic.entity';
-import { Answer } from '../answers/entities/answer.entity';
-import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
-import { UserQuestion } from './entities/user-question.entity';
-import { CreateUserQuestionDto } from './dto/create-user-question.dto';
-import { UpdateUserTopicQuestionDto } from './dto/update-user-topic-question.dto';
-import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
+import { FindAttributeOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
+
+import { Answer } from '../answers/entities/answer.entity';
+import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
+import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
+import { CreateUserQuestionDto } from './dto/create-user-question.dto';
+import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
+import { UserQuestion } from './entities/user-question.entity';
+import { Topic } from '../topics/entities/topic.entity';
 
 @Injectable()
 export class UserQuestionsService {
@@ -19,24 +18,6 @@ export class UserQuestionsService {
     @Inject(Sequelize) private sequelize: Sequelize,
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
-
-  async createOrUpdateDefaultQuestion(
-    { topicQuestionId, text }: UpdateUserTopicQuestionDto,
-    userId: number,
-  ) {
-    try {
-      const userQuestion = await this.topicQuestionService.findOne(topicQuestionId);
-
-      return await this.userQuestionRepository.upsert({
-        userId,
-        topicQuestionId,
-        text,
-        order: userQuestion.order,
-      });
-    } catch (error) {
-      throw new BadRequestException('Failed to create or update question');
-    }
-  }
 
   async createCustomQuestion({ topicId, text }: CreateUserQuestionDto, userId: number) {
     try {
@@ -53,7 +34,7 @@ export class UserQuestionsService {
         order: nextOrder,
       });
     } catch (error) {
-      throw new BadRequestException('Failed to create question');
+      throw new BadRequestException('Failed to create question', error.message);
     }
   }
 
@@ -61,7 +42,7 @@ export class UserQuestionsService {
     try {
       await this.userQuestionRepository.update({ text }, { where: { id } });
     } catch (error) {
-      throw new BadRequestException('Failed to update question');
+      throw new BadRequestException('Failed to update question', error.message);
     }
   }
 
@@ -110,7 +91,7 @@ export class UserQuestionsService {
 
       return [...mergedQuestions, ...customQuestions];
     } catch (error) {
-      throw new BadRequestException('Failed to get questions');
+      throw new BadRequestException('Failed to get questions', error.message);
     }
   }
 
@@ -144,13 +125,23 @@ export class UserQuestionsService {
       return createdQuestions;
     } catch (error) {
       await transaction.commit();
-      throw new BadRequestException('Failed to copy questions');
+      throw new BadRequestException('Failed to copy questions', error.message);
     }
   }
 
-  verifyUserQuestionExists(userQuestionId: number) {
-    return this.userQuestionRepository.findOne({
-      where: { id: userQuestionId },
-    });
+  async verifyUserQuestionExists(
+    where: WhereOptions,
+    attributes: FindAttributeOptions = ['id', 'text', 'order'],
+    include: IncludeOptions[] = [],
+  ) {
+    try {
+      return await this.userQuestionRepository.findOne({
+        where,
+        attributes,
+        include,
+      });
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 }

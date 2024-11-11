@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { FindAttributeOptions, Op, Order, WhereOptions } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
@@ -25,7 +25,7 @@ export class AnswersService {
       });
 
       if (existingAnswer) {
-        const [_, updatedAnswers] = await this.answerRepository.update(
+        const [, updatedAnswers] = await this.answerRepository.update(
           { ...createAnswerDto },
           { where: { id: existingAnswer.id }, returning: true },
         );
@@ -34,14 +34,22 @@ export class AnswersService {
 
       return await this.answerRepository.create(createAnswerDto);
     } catch (error) {
-      throw new BadRequestException({ message: 'Failed to create or update answer' })
+      throw new BadRequestException(
+        { message: 'Failed to create or update answer' },
+        error.message,
+      );
     }
   }
 
-  findAll() {
+  findAll(
+    where: WhereOptions = {},
+    attributes: FindAttributeOptions = ['id', 'userQuestionId', 'response', 'createdAt'],
+    order: Order = [['id', 'ASC']],
+  ) {
     return this.answerRepository.findAll({
-      attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
-      order: [['id', 'ASC']],
+      where,
+      attributes,
+      order,
     });
   }
 }

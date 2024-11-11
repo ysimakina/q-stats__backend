@@ -9,10 +9,10 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
+import { AnswersService } from './answers.service';
 import { UserQuestionsService } from '../user-questions/user-questions.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { OutputCreateOrUpdateDto } from './dto/output-create-or-update.dto';
-import { AnswersService } from './answers.service';
 
 @Controller('answers')
 export class AnswersController {
@@ -28,7 +28,10 @@ export class AnswersController {
     @Query('topicId', ParseIntPipe) topicId: number,
   ) {
     const { userQuestionId } = createAnswerDto;
-    const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists(userQuestionId);
+
+    const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists({
+      id: userQuestionId,
+    });
 
     if (!verifyUserQuestionExists) {
       const copiedQuestions = await this.userQuestionsService.copyQuestions(topicId, userId);
