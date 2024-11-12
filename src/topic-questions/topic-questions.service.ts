@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { FindOptions } from 'sequelize';
 
-import { Topic } from '../topics/entities/topic.entity';
-import { TopicQuestion } from './entities/topic-question.entity';
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
 import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
+import { TopicQuestion } from './entities/topic-question.entity';
 
 @Injectable()
 export class TopicQuestionsService {
@@ -13,41 +13,31 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findByTopic(topicId: number) {
-    return this.topicQuestionRepository.findAll({
-      where: { topicId },
-      attributes: {
-        include: ['id', 'text', 'order'],
-      },
-      order: [['order', 'ASC']],
-    });
+  findByTopic(options: FindOptions<TopicQuestion>) {
+    return this.topicQuestionRepository.findAll(options);
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, options: FindOptions<TopicQuestion>) {
     try {
-      const question = await this.topicQuestionRepository.findByPk(id, {
-        attributes: { exclude: ['topicId'] },
-        include: [
-          {
-            model: Topic,
-            attributes: ['id', 'name'],
-          },
-        ],
-      });
-  
+      const question = await this.topicQuestionRepository.findByPk(id, options);
+
       if (!question) {
         throw new NotFoundException(`Question with ID ${id} not found`);
       }
-  
+
       return question;
     } catch (error) {
-      throw new BadRequestException('Failed to get question');
+      throw new BadRequestException('Failed to get question', error.message);
     }
   }
 
   async create(dto: CreateTopicQuestionDto, topicId) {
     try {
-      const topicQuestions = await this.findByTopic(topicId);
+      const topicQuestions = await this.findByTopic({
+        where: { topicId },
+        attributes: ['id', 'text', 'order'],
+        order: [['order', 'ASC']],
+      });
 
       const order = topicQuestions.length + 1;
 
@@ -59,7 +49,7 @@ export class TopicQuestionsService {
 
       return question;
     } catch (error) {
-      throw new BadRequestException('Failed to create question');
+      throw new BadRequestException('Failed to create question', error.message);
     }
   }
 
@@ -73,7 +63,7 @@ export class TopicQuestionsService {
 
       question.update({ ...dto });
     } catch (error) {
-      throw new BadRequestException('Failed to update question');
+      throw new BadRequestException('Failed to update question', error.message);
     }
   }
 }

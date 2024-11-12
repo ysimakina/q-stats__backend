@@ -3,7 +3,9 @@ import {
   Column,
   ForeignKey,
   Model,
-  Table
+  Table,
+  CreatedAt,
+  UpdatedAt,
 } from 'sequelize-typescript';
 
 import { UserQuestion } from '../../user-questions/entities/user-question.entity';
@@ -11,16 +13,12 @@ import { UserQuestion } from '../../user-questions/entities/user-question.entity
 interface AnswerCreactionAttrs {
   response: boolean;
   userQuestionId: number;
-  date: string;
 }
 
-@Table({ tableName: 'Answers', timestamps: false })
+@Table({ tableName: 'Answers' })
 export class Answer extends Model<Answer, AnswerCreactionAttrs> {
   @Column
   response: boolean;
-
-  @Column
-  date: string;
 
   @ForeignKey(() => UserQuestion)
   @Column
@@ -28,4 +26,10 @@ export class Answer extends Model<Answer, AnswerCreactionAttrs> {
 
   @BelongsTo(() => UserQuestion)
   userQuestion: UserQuestion;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
 }

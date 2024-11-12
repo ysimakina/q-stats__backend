@@ -8,11 +8,13 @@ export class UsersController {
 
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAll({ attributes: ['id', 'name'] });
   }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(id, {
+      attributes: ['id', 'name'],
+    });
   }
 }

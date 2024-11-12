@@ -10,6 +10,6 @@ import { UserQuestionsService } from './user-questions.service';
   imports: [SequelizeModule.forFeature([UserQuestion]), TopicQuestionsModule],
   controllers: [UserQuestionsController],
   providers: [UserQuestionsService],
+  exports: [UserQuestionsService],
 })
-
 export class UserQuestionsModule {}

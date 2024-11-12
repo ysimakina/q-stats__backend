@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { FindOptions, Op } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
@@ -10,38 +11,37 @@ export class AnswersService {
 
   async createOrUpdate(createAnswerDto: CreateAnswerDto) {
     try {
-      const currentDate = new Date().toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      const startDate = createAnswerDto.date.setHours(0, 0, 0, 0);
+      const endDate = createAnswerDto.date.setHours(23, 59, 59, 999);
 
       const existingAnswer = await this.answerRepository.findOne({
-        attributes: ['id', 'userQuestionId', 'response', 'date'],
+        attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
         where: {
           userQuestionId: createAnswerDto.userQuestionId,
-          date: currentDate,
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
         },
       });
 
       if (existingAnswer) {
-        const [_, updatedAnswers] = await this.answerRepository.update(
+        const [, updatedAnswers] = await this.answerRepository.update(
           { ...createAnswerDto },
           { where: { id: existingAnswer.id }, returning: true },
         );
         return updatedAnswers;
       }
 
-      return await this.answerRepository.create({ ...createAnswerDto, date: currentDate });
+      return await this.answerRepository.create(createAnswerDto);
     } catch (error) {
-      throw new BadRequestException('Failed to create or update answer');
+      throw new BadRequestException(
+        { message: 'Failed to create or update answer' },
+        error.message,
+      );
     }
   }
 
-  findAll() {
-    return this.answerRepository.findAll({
-      attributes: ['id', 'userQuestionId', 'response', 'date'],
-      order: [['id', 'ASC']],
-    });
+  findAll(options: FindOptions<Answer>) {
+    return this.answerRepository.findAll(options);
   }
 }

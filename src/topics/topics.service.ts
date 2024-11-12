@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { FindOptions } from 'sequelize';
 
 import { Topic } from './entities/topic.entity';
 
@@ -7,15 +8,11 @@ import { Topic } from './entities/topic.entity';
 export class TopicsService {
   constructor(@InjectModel(Topic) private userRepository: typeof Topic) {}
 
-  findAll() {
-    return this.userRepository.findAll({
-      attributes: ['id', 'name'],
-    });
+  findAll(options: FindOptions<Topic>) {
+    return this.userRepository.findAll(options);
   }
 
-  findOne(id: number) {
-    return this.userRepository.findByPk(id, {
-      attributes: ['id', 'name'],
-    });
+  findOne(id: number, options: FindOptions<Topic>) {
+    return this.userRepository.findByPk(id, options);
   }
 }
