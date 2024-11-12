@@ -1,11 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindAttributeOptions, IncludeOptions, Order, WhereOptions } from 'sequelize';
+import { FindOptions } from 'sequelize';
 
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
 import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
 import { TopicQuestion } from './entities/topic-question.entity';
-import { Topic } from '../topics/entities/topic.entity';
 
 @Injectable()
 export class TopicQuestionsService {
@@ -14,35 +13,13 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findByTopic(
-    where: WhereOptions = {},
-    attributes: FindAttributeOptions = ['id', 'text', 'order'],
-    order: Order = [['order', 'ASC']],
-  ) {
-    return this.topicQuestionRepository.findAll({
-      where,
-      attributes,
-      order,
-    });
+  findByTopic(options: FindOptions<TopicQuestion>) {
+    return this.topicQuestionRepository.findAll(options);
   }
 
-  async findOne(
-    id: number,
-    attributes: FindAttributeOptions = { exclude: ['topicId'] },
-    include: IncludeOptions[] = [
-      {
-        model: Topic,
-        attributes: ['id', 'name'],
-      },
-    ],
-    order: Order = [],
-  ) {
+  async findOne(id: number, options: FindOptions<TopicQuestion>) {
     try {
-      const question = await this.topicQuestionRepository.findByPk(id, {
-        attributes,
-        include,
-        order,
-      });
+      const question = await this.topicQuestionRepository.findByPk(id, options);
 
       if (!question) {
         throw new NotFoundException(`Question with ID ${id} not found`);
@@ -56,7 +33,11 @@ export class TopicQuestionsService {
 
   async create(dto: CreateTopicQuestionDto, topicId) {
     try {
-      const topicQuestions = await this.findByTopic({ topicId });
+      const topicQuestions = await this.findByTopic({
+        where: { topicId },
+        attributes: ['id', 'text', 'order'],
+        order: [['order', 'ASC']],
+      });
 
       const order = topicQuestions.length + 1;
 

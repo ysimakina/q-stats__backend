@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindAttributeOptions, IncludeOptions, Order, WhereOptions } from 'sequelize';
+import { FindOptions } from 'sequelize';
 
 import { User } from './entities/user.entity';
 
@@ -8,28 +8,11 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(@InjectModel(User) private userRepository: typeof User) {}
 
-  findAll(
-    attributes: FindAttributeOptions = ['id', 'name'],
-    where: WhereOptions = {},
-    include: IncludeOptions[] = [],
-    order: Order = [],
-  ) {
-    return this.userRepository.findAll({
-      attributes,
-      where,
-      include,
-      order,
-    });
+  findAll(options: FindOptions<User>) {
+    return this.userRepository.findAll(options);
   }
 
-  findOne(
-    id: number,
-    attributes: FindAttributeOptions = ['id', 'name'],
-    include: IncludeOptions[] = [],
-  ) {
-    return this.userRepository.findByPk(id, {
-      attributes,
-      include,
-    });
+  findOne(id: number, options: FindOptions<User>) {
+    return this.userRepository.findByPk(id, options);
   }
 }

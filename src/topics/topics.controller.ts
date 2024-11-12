@@ -10,7 +10,7 @@ export class TopicsController {
 
   @Get()
   async findAll(): Promise<OutputGetTopicDto[]> {
-    const topics = await this.topicsService.findAll();
+    const topics = await this.topicsService.findAll({ attributes: ['id', 'name'] });
 
     return plainToInstance(OutputGetTopicDto, topics, {
       excludeExtraneousValues: true,
@@ -18,10 +18,8 @@ export class TopicsController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<OutputGetTopicDto> {
-    const topic = await this.topicsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<OutputGetTopicDto> {
+    const topic = await this.topicsService.findOne(id, { attributes: ['id', 'name'] });
 
     return plainToInstance(OutputGetTopicDto, topic, {
       excludeExtraneousValues: true,

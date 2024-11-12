@@ -30,7 +30,8 @@ export class AnswersController {
     const { userQuestionId } = createAnswerDto;
 
     const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists({
-      id: userQuestionId,
+      where: { id: userQuestionId },
+      attributes: ['id'],
     });
 
     if (!verifyUserQuestionExists) {
@@ -64,7 +65,10 @@ export class AnswersController {
 
   @Get()
   async findAll() {
-    const answers = await this.answersService.findAll();
+    const answers = await this.answersService.findAll({
+      attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
+      order: [['id', 'ASC']],
+    });
 
     return plainToInstance(OutputCreateOrUpdateDto, answers, {
       excludeExtraneousValues: true,

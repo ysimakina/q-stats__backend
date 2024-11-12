@@ -14,5 +14,5 @@ export class OutputUserQuestionDto {
 
   @Expose()
   @Type(() => OutputCreateOrUpdateDto)
-  answers: OutputCreateOrUpdateDto[]
+  answers: OutputCreateOrUpdateDto[];
 }

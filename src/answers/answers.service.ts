@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindAttributeOptions, Op, Order, WhereOptions } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
@@ -41,15 +41,7 @@ export class AnswersService {
     }
   }
 
-  findAll(
-    where: WhereOptions = {},
-    attributes: FindAttributeOptions = ['id', 'userQuestionId', 'response', 'createdAt'],
-    order: Order = [['id', 'ASC']],
-  ) {
-    return this.answerRepository.findAll({
-      where,
-      attributes,
-      order,
-    });
+  findAll(options: FindOptions<Answer>) {
+    return this.answerRepository.findAll(options);
   }
 }

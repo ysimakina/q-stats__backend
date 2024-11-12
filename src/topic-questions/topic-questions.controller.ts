@@ -6,14 +6,21 @@ import { OutputCreateTopicQuestionDto } from './dto/output-create-topic-question
 import { OutputGetTopicQuestionDto } from './dto/output-get-topic-question.dto';
 import { UpdateTopicQuestionDto } from './dto/update-topic-question.dto';
 import { TopicQuestionsService } from './topic-questions.service';
+import { Topic } from '../topics/entities/topic.entity';
 
 @Controller('topic/:id/questions')
 export class TopicQuestionsController {
   constructor(private readonly topicQuestionsService: TopicQuestionsService) {}
 
   @Get()
-  async findByTopic(@Param('id', ParseIntPipe) id: number): Promise<OutputGetTopicQuestionDto[]> {
-    const questions = await this.topicQuestionsService.findByTopic({ topicId: id });
+  async findByTopic(
+    @Param('id', ParseIntPipe) topicId: number,
+  ): Promise<OutputGetTopicQuestionDto[]> {
+    const questions = await this.topicQuestionsService.findByTopic({
+      where: { topicId },
+      attributes: ['id', 'text', 'order'],
+      order: [['order', 'ASC']],
+    });
 
     return plainToInstance(OutputGetTopicQuestionDto, questions, {
       excludeExtraneousValues: true,
@@ -24,7 +31,15 @@ export class TopicQuestionsController {
   async findOne(
     @Param('questionId', ParseIntPipe) questionId: number,
   ): Promise<OutputGetTopicQuestionDto> {
-    const question = await this.topicQuestionsService.findOne(questionId);
+    const question = await this.topicQuestionsService.findOne(questionId, {
+      attributes: { exclude: ['topicId'] },
+      include: [
+        {
+          model: Topic,
+          attributes: ['id', 'name'],
+        },
+      ],
+    });
 
     return plainToInstance(OutputGetTopicQuestionDto, question, {
       excludeExtraneousValues: true,

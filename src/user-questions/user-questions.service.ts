@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindAttributeOptions, IncludeOptions, Op, WhereOptions } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 
 import { Answer } from '../answers/entities/answer.entity';
@@ -18,6 +18,10 @@ export class UserQuestionsService {
     @Inject(Sequelize) private sequelize: Sequelize,
     private readonly topicQuestionService: TopicQuestionsService,
   ) {}
+
+  findAll(options: FindOptions<UserQuestion>) {
+    return this.userQuestionRepository.findAll(options);
+  }
 
   async createCustomQuestion({ topicId, text }: CreateUserQuestionDto, userId: number) {
     try {
@@ -48,9 +52,13 @@ export class UserQuestionsService {
 
   async getMergedQuestionsByTopic(userId, topicId) {
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic({ topicId });
+      const topicQuestions = await this.topicQuestionService.findByTopic({
+        where: { topicId },
+        attributes: ['id', 'text', 'order'],
+        order: [['order', 'ASC']],
+      });
 
-      const userQuestions = await this.userQuestionRepository.findAll({
+      const userQuestions = await this.findAll({
         attributes: ['id', 'text', 'order', 'topicId', 'topicQuestionId'],
         where: {
           userId: userId,
@@ -80,16 +88,14 @@ export class UserQuestionsService {
         return acc;
       }, {});
 
-      const mergedQuestions = topicQuestions.map((topicQuestion) => {
-        const userQuestion = userQuestionsMap[topicQuestion.order];
-        return userQuestion || topicQuestion;
-      });
-
-      const customQuestions = userQuestions.filter(
-        (question) => question.topicQuestionId === null && question.topicId === topicId,
+      const allUserQuestionsExist = topicQuestions.some(
+        (topicQuestion) => userQuestionsMap[topicQuestion.order],
       );
 
-      return [...mergedQuestions, ...customQuestions];
+      const mergedQuestions = allUserQuestionsExist ? userQuestions : topicQuestions;
+      const simplifiedQuestions = mergedQuestions.map((question) => question.dataValues);
+
+      return simplifiedQuestions;
     } catch (error) {
       throw new BadRequestException('Failed to get questions', error.message);
     }
@@ -98,9 +104,13 @@ export class UserQuestionsService {
   async copyQuestions(topicId: number, userId: number) {
     const transaction = await this.sequelize.transaction();
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic({ topicId });
+      const topicQuestions = await this.topicQuestionService.findByTopic({
+        where: { topicId },
+        attributes: ['id', 'text', 'order'],
+        order: [['order', 'ASC']],
+      });
 
-      const userQuestions = await this.userQuestionRepository.findAll({
+      const userQuestions = await this.findAll({
         attributes: ['id', 'topicQuestionId', 'userId'],
         where: { topicId, userId },
       });
@@ -128,17 +138,9 @@ export class UserQuestionsService {
     }
   }
 
-  async verifyUserQuestionExists(
-    where: WhereOptions,
-    attributes: FindAttributeOptions = ['id', 'text', 'order'],
-    include: IncludeOptions[] = [],
-  ) {
+  async verifyUserQuestionExists(options: FindOptions<UserQuestion>) {
     try {
-      return await this.userQuestionRepository.findOne({
-        where,
-        attributes,
-        include,
-      });
+      return await this.userQuestionRepository.findOne(options);
     } catch (error) {
       throw new NotFoundException(error.message);
     }
