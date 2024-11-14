@@ -52,7 +52,7 @@ export class UserQuestionsService {
 
   async getMergedQuestionsByTopic(userId, topicId) {
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic({
+      const topicQuestions = await this.topicQuestionService.findAll({
         where: { topicId },
         attributes: ['id', 'text', 'order'],
         order: [['order', 'ASC']],
@@ -104,9 +104,9 @@ export class UserQuestionsService {
   async copyQuestions(topicId: number, userId: number) {
     const transaction = await this.sequelize.transaction();
     try {
-      const topicQuestions = await this.topicQuestionService.findByTopic({
+      const topicQuestions = await this.topicQuestionService.findAll({
         where: { topicId },
-        attributes: ['id', 'text', 'order'],
+        attributes: ['id', 'text', 'order', 'topicId'],
         order: [['order', 'ASC']],
       });
 
@@ -143,6 +143,14 @@ export class UserQuestionsService {
       return await this.userQuestionRepository.findOne(options);
     } catch (error) {
       throw new NotFoundException(error.message);
+    }
+  }
+
+  async delete(options: FindOptions<UserQuestion>) {
+    try {
+      return await this.userQuestionRepository.destroy(options);
+    } catch (error) {
+      throw new BadRequestException('Failed to delete question', error.message);
     }
   }
 }

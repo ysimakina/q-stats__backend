@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 import { CreateTopicQuestionDto } from './dto/create-topic-question.dto';
@@ -13,10 +13,8 @@ export class TopicQuestionsController {
   constructor(private readonly topicQuestionsService: TopicQuestionsService) {}
 
   @Get()
-  async findByTopic(
-    @Param('id', ParseIntPipe) topicId: number,
-  ): Promise<OutputGetTopicQuestionDto[]> {
-    const questions = await this.topicQuestionsService.findByTopic({
+  async findAll(@Param('id', ParseIntPipe) topicId: number): Promise<OutputGetTopicQuestionDto[]> {
+    const questions = await this.topicQuestionsService.findAll({
       where: { topicId },
       attributes: ['id', 'text', 'order'],
       order: [['order', 'ASC']],
@@ -64,5 +62,10 @@ export class TopicQuestionsController {
     @Body() dto: UpdateTopicQuestionDto,
   ) {
     return this.topicQuestionsService.update(questionId, dto);
+  }
+
+  @Delete(':questionId')
+  delete(@Param('questionId', ParseIntPipe) questionId: number) {
+    return this.topicQuestionsService.delete({ where: { id: questionId } });
   }
 }

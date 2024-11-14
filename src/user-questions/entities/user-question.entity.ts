@@ -9,10 +9,10 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { User } from '../../users/entities/user.entity';
+import { Answer } from '../../answers/entities/answer.entity';
 import { TopicQuestion } from '../../topic-questions/entities/topic-question.entity';
 import { Topic } from '../../topics/entities/topic.entity';
-import { Answer } from '../../answers/entities/answer.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Table({ tableName: 'UserQuestions', timestamps: false, underscored: true })
 export class UserQuestion extends Model<UserQuestion> {
@@ -26,7 +26,7 @@ export class UserQuestion extends Model<UserQuestion> {
   userId: number;
 
   @ForeignKey(() => TopicQuestion)
-  @Column
+  @Column({ allowNull: true, onDelete: 'SET NULL' })
   topicQuestionId?: number;
 
   @ForeignKey(() => Topic)
