@@ -1,5 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength,
+  MinLength
+} from 'class-validator';
 
 import { CreateUserQuestionDto } from './create-user-question.dto';
 

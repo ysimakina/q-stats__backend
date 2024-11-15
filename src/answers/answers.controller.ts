@@ -52,15 +52,11 @@ export class AnswersController {
         userQuestionId: correctUserQuestionId,
       });
 
-      return plainToInstance(OutputCreateOrUpdateDto, answer, {
-        excludeExtraneousValues: true,
-      });
+      return plainToInstance(OutputCreateOrUpdateDto, answer, {excludeExtraneousValues: true,});
     }
     const answer = await this.answersService.createOrUpdate(createAnswerDto);
 
-    return plainToInstance(OutputCreateOrUpdateDto, answer, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(OutputCreateOrUpdateDto, answer, {excludeExtraneousValues: true,});
   }
 
   @Get()
@@ -70,8 +66,6 @@ export class AnswersController {
       order: [['id', 'ASC']],
     });
 
-    return plainToInstance(OutputCreateOrUpdateDto, answers, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(OutputCreateOrUpdateDto, answers, { excludeExtraneousValues: true });
   }
 }

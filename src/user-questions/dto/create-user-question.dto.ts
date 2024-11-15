@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength,
+  MinLength
+} from 'class-validator';
 
 export class CreateUserQuestionDto {
   @IsNumber({}, { message: 'TopicId must be a number' })

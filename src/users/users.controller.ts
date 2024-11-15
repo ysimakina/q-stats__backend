@@ -1,4 +1,9 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe
+} from '@nestjs/common';
 
 import { UsersService } from './users.service';
 
