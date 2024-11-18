@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindOptions } from 'sequelize';
 
@@ -13,7 +17,7 @@ export class TopicQuestionsService {
     private topicQuestionRepository: typeof TopicQuestion,
   ) {}
 
-  findByTopic(options: FindOptions<TopicQuestion>) {
+  findAll(options: FindOptions<TopicQuestion>) {
     return this.topicQuestionRepository.findAll(options);
   }
 
@@ -33,7 +37,7 @@ export class TopicQuestionsService {
 
   async create(dto: CreateTopicQuestionDto, topicId) {
     try {
-      const topicQuestions = await this.findByTopic({
+      const topicQuestions = await this.findAll({
         where: { topicId },
         attributes: ['id', 'text', 'order'],
         order: [['order', 'ASC']],
@@ -64,6 +68,14 @@ export class TopicQuestionsService {
       question.update({ ...dto });
     } catch (error) {
       throw new BadRequestException('Failed to update question', error.message);
+    }
+  }
+
+  async delete(options: FindOptions<TopicQuestion>) {
+    try {
+      return await this.topicQuestionRepository.destroy(options);
+    } catch (error) {
+      throw new BadRequestException('Failed to delete question', error.message);
     }
   }
 }

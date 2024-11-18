@@ -3,16 +3,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
 
-import { Topic } from './topics/entities/topic.entity';
-import { User } from './users/entities/user.entity';
-import { TopicQuestion } from './topic-questions/entities/topic-question.entity';
-import { UserQuestion } from './user-questions/entities/user-question.entity';
-import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
-import { UserQuestionsModule } from './user-questions/user-questions.module';
-import { TopicsModule } from './topics/topics.module';
-import { UsersModule } from './users/users.module';
 import { AnswersModule } from './answers/answers.module';
 import { Answer } from './answers/entities/answer.entity';
+import { TopicQuestion } from './topic-questions/entities/topic-question.entity';
+import { TopicQuestionsModule } from './topic-questions/topic-questions.module';
+import { Topic } from './topics/entities/topic.entity';
+import { TopicsModule } from './topics/topics.module';
+import { UserQuestion } from './user-questions/entities/user-question.entity';
+import { UserQuestionsModule } from './user-questions/user-questions.module';
+import { User } from './users/entities/user.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [

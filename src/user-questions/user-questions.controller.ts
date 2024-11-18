@@ -1,4 +1,14 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Query, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
@@ -15,7 +25,10 @@ export class UserQuestionsController {
     @Param('userId', ParseIntPipe) userId: number,
     @Query('topicId', ParseIntPipe) topicId: number,
   ): Promise<OutputUserQuestionDto[]> {
-    const questions = await this.userQuestionsService.getMergedQuestionsByTopic(userId, topicId);
+    const questions = await this.userQuestionsService.getMergedQuestionsByTopic(
+      userId,
+      topicId,
+    );
 
     return plainToInstance(OutputUserQuestionDto, questions, {
       excludeExtraneousValues: true,
@@ -40,5 +53,10 @@ export class UserQuestionsController {
   @Patch()
   update(@Body() { text, id }: UpdateUserQuestionDto) {
     return this.userQuestionsService.updateCustomQuestion({ id, text });
+  }
+
+  @Delete(':questionId')
+  delete(@Param('questionId', ParseIntPipe) questionId: number) {
+    return this.userQuestionsService.delete({ where: { id: questionId } });
   }
 }

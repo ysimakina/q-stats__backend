@@ -29,19 +29,28 @@ export class AnswersController {
   ) {
     const { userQuestionId } = createAnswerDto;
 
-    const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists({
-      where: { id: userQuestionId },
-      attributes: ['id'],
-    });
+    const verifyUserQuestionExists =
+      await this.userQuestionsService.verifyUserQuestionExists({
+        where: { id: userQuestionId },
+        attributes: ['id'],
+      });
 
     if (!verifyUserQuestionExists) {
-      const copiedQuestions = await this.userQuestionsService.copyQuestions(topicId, userId);
-
-      const questionMapping = new Map(
-        copiedQuestions.map((question) => [question.topicQuestionId, question.id]),
+      const copiedQuestions = await this.userQuestionsService.copyQuestions(
+        topicId,
+        userId,
       );
 
-      const correctUserQuestionId = questionMapping.get(createAnswerDto.userQuestionId);
+      const questionMapping = new Map(
+        copiedQuestions.map((question) => [
+          question.topicQuestionId,
+          question.id,
+        ]),
+      );
+
+      const correctUserQuestionId = questionMapping.get(
+        createAnswerDto.userQuestionId,
+      );
 
       if (!correctUserQuestionId) {
         throw new BadRequestException('Invalid userQuestionId');

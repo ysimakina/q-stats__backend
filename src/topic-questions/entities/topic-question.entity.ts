@@ -1,14 +1,14 @@
 import { 
-  BelongsTo, 
-  BelongsToMany, 
-  Column, 
-  ForeignKey, 
-  Model, 
+  BelongsTo,
+  BelongsToMany,
+  Column,
+  ForeignKey,
+  Model,
   Table 
 } from 'sequelize-typescript';
 
-import { UserQuestion } from '../../user-questions/entities/user-question.entity';
 import { Topic } from '../../topics/entities/topic.entity';
+import { UserQuestion } from '../../user-questions/entities/user-question.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Table({ tableName: 'TopicQuestion', timestamps: false })
