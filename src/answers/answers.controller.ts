@@ -6,6 +6,7 @@ import {
   Query,
   ParseIntPipe,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
@@ -82,5 +83,10 @@ export class AnswersController {
     return plainToInstance(OutputCreateOrUpdateDto, answers, {
       excludeExtraneousValues: true,
     });
+  }
+
+  @Get('/user/:userId')
+  sortAnswersOnDate(@Param('userId', ParseIntPipe) userId: number) {
+    return this.answersService.sortAnswersOnDate(userId);
   }
 }
