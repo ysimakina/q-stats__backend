@@ -25,7 +25,10 @@ export class UserQuestionsController {
     @Param('userId', ParseIntPipe) userId: number,
     @Query('topicId', ParseIntPipe) topicId: number,
   ): Promise<OutputUserQuestionDto[]> {
-    const questions = await this.userQuestionsService.getMergedQuestionsByTopic(userId, topicId);
+    const questions = await this.userQuestionsService.getMergedQuestionsByTopic(
+      userId,
+      topicId,
+    );
 
     return plainToInstance(OutputUserQuestionDto, questions, {
       excludeExtraneousValues: true,

@@ -22,7 +22,9 @@ export class TopicQuestionsController {
   constructor(private readonly topicQuestionsService: TopicQuestionsService) {}
 
   @Get()
-  async findAll(@Param('id', ParseIntPipe) topicId: number): Promise<OutputGetTopicQuestionDto[]> {
+  async findAll(
+    @Param('id', ParseIntPipe) topicId: number,
+  ): Promise<OutputGetTopicQuestionDto[]> {
     const questions = await this.topicQuestionsService.findAll({
       where: { topicId },
       attributes: ['id', 'text', 'order'],

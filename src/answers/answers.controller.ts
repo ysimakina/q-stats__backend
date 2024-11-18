@@ -29,19 +29,28 @@ export class AnswersController {
   ) {
     const { userQuestionId } = createAnswerDto;
 
-    const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists({
-      where: { id: userQuestionId },
-      attributes: ['id'],
-    });
+    const verifyUserQuestionExists =
+      await this.userQuestionsService.verifyUserQuestionExists({
+        where: { id: userQuestionId },
+        attributes: ['id'],
+      });
 
     if (!verifyUserQuestionExists) {
-      const copiedQuestions = await this.userQuestionsService.copyQuestions(topicId, userId);
-
-      const questionMapping = new Map(
-        copiedQuestions.map((question) => [question.topicQuestionId, question.id]),
+      const copiedQuestions = await this.userQuestionsService.copyQuestions(
+        topicId,
+        userId,
       );
 
-      const correctUserQuestionId = questionMapping.get(createAnswerDto.userQuestionId);
+      const questionMapping = new Map(
+        copiedQuestions.map((question) => [
+          question.topicQuestionId,
+          question.id,
+        ]),
+      );
+
+      const correctUserQuestionId = questionMapping.get(
+        createAnswerDto.userQuestionId,
+      );
 
       if (!correctUserQuestionId) {
         throw new BadRequestException('Invalid userQuestionId');
@@ -52,11 +61,15 @@ export class AnswersController {
         userQuestionId: correctUserQuestionId,
       });
 
-      return plainToInstance(OutputCreateOrUpdateDto, answer, {excludeExtraneousValues: true,});
+      return plainToInstance(OutputCreateOrUpdateDto, answer, {
+        excludeExtraneousValues: true,
+      });
     }
     const answer = await this.answersService.createOrUpdate(createAnswerDto);
 
-    return plainToInstance(OutputCreateOrUpdateDto, answer, {excludeExtraneousValues: true,});
+    return plainToInstance(OutputCreateOrUpdateDto, answer, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Get()
@@ -66,6 +79,8 @@ export class AnswersController {
       order: [['id', 'ASC']],
     });
 
-    return plainToInstance(OutputCreateOrUpdateDto, answers, { excludeExtraneousValues: true });
+    return plainToInstance(OutputCreateOrUpdateDto, answers, {
+      excludeExtraneousValues: true,
+    });
   }
 }
