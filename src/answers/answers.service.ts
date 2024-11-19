@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindOptions, Op } from 'sequelize';
+import { FindOptions, Op, Sequelize } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
@@ -46,51 +46,36 @@ export class AnswersService {
     return this.answerRepository.findAll(options);
   }
 
-  async sortAnswersOnDate(userId: number) {
+  async formatedAnswersOnDate(userId: number) {
     const answers = await this.findAll({
-      attributes: ['id', 'response', 'userQuestionId', 'createdAt'],
+      attributes: [
+        [Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'date'],
+        [
+          Sequelize.literal(`
+            jsonb_agg(
+              jsonb_build_object(
+                'id', "Answer"."id",
+                'response', "Answer"."response",
+                'userQuestionId', "Answer"."userQuestionId",
+                'createdAt', "Answer"."createdAt"
+              )
+            )
+          `),
+          'answers',
+        ],
+      ],
       include: [
         {
           model: UserQuestion,
           attributes: [],
           where: {
-            userId: userId,
+            userId,
           },
         },
       ],
+      group: 'date',
     });
 
-    const dates = [];
-
-    answers.map((answer) => {
-      const date = answer.createdAt
-        .toISOString()
-        .split('T')[0]
-        .split('-')
-        .reverse()
-        .join('-');
-
-      dates.push({
-        date,
-        answers: [],
-      });
-    });
-
-    answers.map((answer) => {
-      const date = answer.createdAt
-        .toISOString()
-        .split('T')[0]
-        .split('-')
-        .reverse()
-        .join('-');
-
-      dates.map((item) => {
-        if (date === item.date) item.answers.push(answer);
-      });
-    });
-
-    const mapFromDates = new Map(dates.map((item) => [item.date, item]));
-
-    return [...mapFromDates.values()];
+    return answers;
   }
 }
