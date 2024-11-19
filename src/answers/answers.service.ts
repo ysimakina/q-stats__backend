@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FindOptions, Op } from 'sequelize';
+import { FindOptions, Op, Sequelize } from 'sequelize';
 
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
+import { UserQuestion } from '../user-questions/entities/user-question.entity';
 
 @Injectable()
 export class AnswersService {
@@ -43,5 +44,38 @@ export class AnswersService {
 
   findAll(options: FindOptions<Answer>) {
     return this.answerRepository.findAll(options);
+  }
+
+  async formatedAnswersOnDate(userId: number) {
+    const answers = await this.findAll({
+      attributes: [
+        [Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'date'],
+        [
+          Sequelize.literal(`
+            jsonb_agg(
+              jsonb_build_object(
+                'id', "Answer"."id",
+                'response', "Answer"."response",
+                'userQuestionId', "Answer"."userQuestionId",
+                'createdAt', "Answer"."createdAt"
+              )
+            )
+          `),
+          'answers',
+        ],
+      ],
+      include: [
+        {
+          model: UserQuestion,
+          attributes: [],
+          where: {
+            userId,
+          },
+        },
+      ],
+      group: 'date',
+    });
+
+    return answers;
   }
 }

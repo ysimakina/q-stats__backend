@@ -6,6 +6,7 @@ import {
   Query,
   ParseIntPipe,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
@@ -29,28 +30,19 @@ export class AnswersController {
   ) {
     const { userQuestionId } = createAnswerDto;
 
-    const verifyUserQuestionExists =
-      await this.userQuestionsService.verifyUserQuestionExists({
-        where: { id: userQuestionId },
-        attributes: ['id'],
-      });
+    const verifyUserQuestionExists = await this.userQuestionsService.verifyUserQuestionExists({
+      where: { id: userQuestionId },
+      attributes: ['id'],
+    });
 
     if (!verifyUserQuestionExists) {
-      const copiedQuestions = await this.userQuestionsService.copyQuestions(
-        topicId,
-        userId,
-      );
+      const copiedQuestions = await this.userQuestionsService.copyQuestions(topicId, userId);
 
       const questionMapping = new Map(
-        copiedQuestions.map((question) => [
-          question.topicQuestionId,
-          question.id,
-        ]),
+        copiedQuestions.map((question) => [question.topicQuestionId, question.id]),
       );
 
-      const correctUserQuestionId = questionMapping.get(
-        createAnswerDto.userQuestionId,
-      );
+      const correctUserQuestionId = questionMapping.get(createAnswerDto.userQuestionId);
 
       if (!correctUserQuestionId) {
         throw new BadRequestException('Invalid userQuestionId');
@@ -82,5 +74,10 @@ export class AnswersController {
     return plainToInstance(OutputCreateOrUpdateDto, answers, {
       excludeExtraneousValues: true,
     });
+  }
+
+  @Get('/user/:userId')
+  formatedAnswersOnDate(@Param('userId', ParseIntPipe) userId: number) {
+    return this.answersService.formatedAnswersOnDate(userId);
   }
 }
