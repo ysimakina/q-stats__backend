@@ -74,6 +74,7 @@ export class AnswersService {
         },
       ],
       group: 'date',
+      order: [[Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'ASC']],
     });
 
     return answers;
