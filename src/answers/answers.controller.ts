@@ -76,8 +76,11 @@ export class AnswersController {
     });
   }
 
-  @Get('/user/:userId')
-  formatedAnswersOnDate(@Param('userId', ParseIntPipe) userId: number) {
-    return this.answersService.formatedAnswersOnDate(userId);
+  @Get('/user/:userId/topic/:topicId')
+  formatedAnswersOnDate(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('topicId', ParseIntPipe) topicId: number,
+  ) {
+    return this.answersService.formatedAnswersOnDate(userId, topicId);
   }
 }

@@ -46,7 +46,7 @@ export class AnswersService {
     return this.answerRepository.findAll(options);
   }
 
-  async formatedAnswersOnDate(userId: number) {
+  async formatedAnswersOnDate(userId: number, topicId: number) {
     const answers = await this.findAll({
       attributes: [
         [Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'date'],
@@ -70,6 +70,7 @@ export class AnswersService {
           attributes: [],
           where: {
             userId,
+            topicId,
           },
         },
       ],
