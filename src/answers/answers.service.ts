@@ -30,7 +30,7 @@ export class AnswersService {
           { ...createAnswerDto },
           { where: { id: existingAnswer.id }, returning: true },
         );
-        return updatedAnswers;
+        return updatedAnswers[0];
       }
 
       return await this.answerRepository.create(createAnswerDto);
