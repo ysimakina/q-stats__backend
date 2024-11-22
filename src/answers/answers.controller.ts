@@ -70,7 +70,7 @@ export class AnswersController {
   @Get()
   async findAll() {
     const answers = await this.answersService.findAll({
-      attributes: ['id', 'userQuestionId', 'status', 'copiedQuestion', 'createdAt'],
+      attributes: ['id', 'userQuestionId', 'status', 'createdAt'],
       order: [['id', 'ASC']],
     });
 

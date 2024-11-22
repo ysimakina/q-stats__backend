@@ -8,7 +8,7 @@ export class OutputCreateOrUpdateDto {
   readonly status: string;
 
   @Expose()
-  readonly copiedQuestion: boolean;
+  readonly isCopiedQuestion: boolean;
 
   @Expose()
   readonly createdAt: number;

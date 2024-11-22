@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindOptions, Op, Sequelize } from 'sequelize';
 
+import { AnswerWithCopiedFlag } from '../types';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
 import { UserQuestion } from '../user-questions/entities/user-question.entity';
@@ -10,7 +11,10 @@ import { UserQuestion } from '../user-questions/entities/user-question.entity';
 export class AnswersService {
   constructor(@InjectModel(Answer) private answerRepository: typeof Answer) {}
 
-  async createOrUpdate(createAnswerDto: CreateAnswerDto, copiedQuestion: boolean) {
+  async createOrUpdate(
+    createAnswerDto: CreateAnswerDto,
+    isCopiedQuestion: boolean,
+  ): Promise<AnswerWithCopiedFlag> {
     try {
       const startDate = createAnswerDto.date.setHours(0, 0, 0, 0);
       const endDate = createAnswerDto.date.setHours(23, 59, 59, 999);
@@ -27,13 +31,15 @@ export class AnswersService {
 
       if (existingAnswer) {
         const [, updatedAnswers] = await this.answerRepository.update(
-          { ...createAnswerDto, copiedQuestion },
+          { ...createAnswerDto },
           { where: { id: existingAnswer.id }, returning: true },
         );
-        return updatedAnswers[0];
+
+        return { ...updatedAnswers[0].dataValues, isCopiedQuestion };
       }
 
-      return await this.answerRepository.create({ ...createAnswerDto, copiedQuestion });
+      const answer = await this.answerRepository.create({ ...createAnswerDto });
+      return { ...answer.dataValues, isCopiedQuestion };
     } catch (error) {
       throw new BadRequestException(
         { message: 'Failed to create or update answer' },
@@ -58,7 +64,6 @@ export class AnswersService {
                   'id', "Answer"."id",
                   'status', "Answer"."status",
                   'userQuestionId', "Answer"."userQuestionId",
-                  'copiedQuestion', "Answer"."copiedQuestion",
                   'createdAt', "Answer"."createdAt"
                 )
               )
