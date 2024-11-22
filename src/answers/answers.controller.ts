@@ -48,16 +48,19 @@ export class AnswersController {
         throw new BadRequestException('Invalid userQuestionId');
       }
 
-      const answer = await this.answersService.createOrUpdate({
-        ...createAnswerDto,
-        userQuestionId: correctUserQuestionId,
-      });
+      const answer = await this.answersService.createOrUpdate(
+        {
+          ...createAnswerDto,
+          userQuestionId: correctUserQuestionId,
+        },
+        true,
+      );
 
       return plainToInstance(OutputCreateOrUpdateDto, answer, {
         excludeExtraneousValues: true,
       });
     }
-    const answer = await this.answersService.createOrUpdate(createAnswerDto);
+    const answer = await this.answersService.createOrUpdate(createAnswerDto, false);
 
     return plainToInstance(OutputCreateOrUpdateDto, answer, {
       excludeExtraneousValues: true,
@@ -67,7 +70,7 @@ export class AnswersController {
   @Get()
   async findAll() {
     const answers = await this.answersService.findAll({
-      attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
+      attributes: ['id', 'userQuestionId', 'status', 'copiedQuestion', 'createdAt'],
       order: [['id', 'ASC']],
     });
 

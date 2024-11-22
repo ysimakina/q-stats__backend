@@ -11,14 +11,18 @@ import {
 import { UserQuestion } from '../../user-questions/entities/user-question.entity';
 
 interface AnswerCreactionAttrs {
-  response: boolean;
+  status: boolean;
   userQuestionId: number;
+  copiedQuestion: boolean;
 }
 
 @Table({ tableName: 'Answers' })
 export class Answer extends Model<Answer, AnswerCreactionAttrs> {
   @Column
-  response: boolean;
+  status: boolean;
+
+  @Column
+  copiedQuestion: boolean;
 
   @ForeignKey(() => UserQuestion)
   @Column

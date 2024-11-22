@@ -5,7 +5,10 @@ export class OutputCreateOrUpdateDto {
   readonly id: number;
 
   @Expose()
-  readonly response: string;
+  readonly status: string;
+
+  @Expose()
+  readonly copiedQuestion: boolean;
 
   @Expose()
   readonly createdAt: number;

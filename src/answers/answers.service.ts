@@ -10,13 +10,13 @@ import { UserQuestion } from '../user-questions/entities/user-question.entity';
 export class AnswersService {
   constructor(@InjectModel(Answer) private answerRepository: typeof Answer) {}
 
-  async createOrUpdate(createAnswerDto: CreateAnswerDto) {
+  async createOrUpdate(createAnswerDto: CreateAnswerDto, copiedQuestion: boolean) {
     try {
       const startDate = createAnswerDto.date.setHours(0, 0, 0, 0);
       const endDate = createAnswerDto.date.setHours(23, 59, 59, 999);
 
       const existingAnswer = await this.answerRepository.findOne({
-        attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
+        attributes: ['id', 'userQuestionId', 'status', 'createdAt'],
         where: {
           userQuestionId: createAnswerDto.userQuestionId,
           createdAt: {
@@ -27,13 +27,13 @@ export class AnswersService {
 
       if (existingAnswer) {
         const [, updatedAnswers] = await this.answerRepository.update(
-          { ...createAnswerDto },
+          { ...createAnswerDto, copiedQuestion },
           { where: { id: existingAnswer.id }, returning: true },
         );
         return updatedAnswers[0];
       }
 
-      return await this.answerRepository.create(createAnswerDto);
+      return await this.answerRepository.create({ ...createAnswerDto, copiedQuestion });
     } catch (error) {
       throw new BadRequestException(
         { message: 'Failed to create or update answer' },
@@ -47,37 +47,42 @@ export class AnswersService {
   }
 
   async formatedAnswersOnDate(userId: number, topicId: number) {
-    const answers = await this.findAll({
-      attributes: [
-        [Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'date'],
-        [
-          Sequelize.literal(`
-            jsonb_agg(
-              jsonb_build_object(
-                'id', "Answer"."id",
-                'response', "Answer"."response",
-                'userQuestionId', "Answer"."userQuestionId",
-                'createdAt', "Answer"."createdAt"
+    try {
+      const answers = await this.findAll({
+        attributes: [
+          [Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'date'],
+          [
+            Sequelize.literal(`
+              jsonb_agg(
+                jsonb_build_object(
+                  'id', "Answer"."id",
+                  'status', "Answer"."status",
+                  'userQuestionId', "Answer"."userQuestionId",
+                  'copiedQuestion', "Answer"."copiedQuestion",
+                  'createdAt', "Answer"."createdAt"
+                )
               )
-            )
-          `),
-          'answers',
+            `),
+            'answers',
+          ],
         ],
-      ],
-      include: [
-        {
-          model: UserQuestion,
-          attributes: [],
-          where: {
-            userId,
-            topicId,
+        include: [
+          {
+            model: UserQuestion,
+            attributes: [],
+            where: {
+              userId,
+              topicId,
+            },
           },
-        },
-      ],
-      group: 'date',
-      order: [[Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'ASC']],
-    });
+        ],
+        group: 'date',
+        order: [[Sequelize.fn('TO_CHAR', Sequelize.col('Answer.createdAt'), 'DD-MM-YYYY'), 'ASC']],
+      });
 
-    return answers;
+      return answers;
+    } catch (error) {
+      throw new BadRequestException({ message: 'Failed to get answer' }, error.message);
+    }
   }
 }
