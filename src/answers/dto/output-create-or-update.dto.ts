@@ -1,6 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
-export class OutputCreateOrUpdateDto {
+class OutputAnswerDto {
   @Expose()
   readonly id: number;
 
@@ -8,8 +8,14 @@ export class OutputCreateOrUpdateDto {
   readonly status: string;
 
   @Expose()
-  readonly isCopiedQuestion: boolean;
+  readonly createdAt: number;
+}
+
+export class OutputCreateOrUpdateDto {
+  @Type(() => OutputAnswerDto)
+  @Expose()
+  readonly answer: OutputAnswerDto;
 
   @Expose()
-  readonly createdAt: number;
+  readonly isCopiedQuestion: boolean;
 }

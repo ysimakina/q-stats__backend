@@ -55,7 +55,7 @@ export class AnswersController {
 
       return plainToInstance(
         OutputCreateOrUpdateDto,
-        { ...answer, isCopiedQuestion: true },
+        { answer, isCopiedQuestion: true },
         {
           excludeExtraneousValues: true,
         },
@@ -65,7 +65,7 @@ export class AnswersController {
 
     return plainToInstance(
       OutputCreateOrUpdateDto,
-      { ...answer, isCopiedQuestion: false },
+      { answer, isCopiedQuestion: false },
       {
         excludeExtraneousValues: true,
       },
