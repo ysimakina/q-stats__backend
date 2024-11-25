@@ -48,23 +48,28 @@ export class AnswersController {
         throw new BadRequestException('Invalid userQuestionId');
       }
 
-      const answer = await this.answersService.createOrUpdate(
-        {
-          ...createAnswerDto,
-          userQuestionId: correctUserQuestionId,
-        },
-        true,
-      );
-
-      return plainToInstance(OutputCreateOrUpdateDto, answer, {
-        excludeExtraneousValues: true,
+      const answer = await this.answersService.createOrUpdate({
+        ...createAnswerDto,
+        userQuestionId: correctUserQuestionId,
       });
-    }
-    const answer = await this.answersService.createOrUpdate(createAnswerDto, false);
 
-    return plainToInstance(OutputCreateOrUpdateDto, answer, {
-      excludeExtraneousValues: true,
-    });
+      return plainToInstance(
+        OutputCreateOrUpdateDto,
+        { ...answer, isCopiedQuestion: true },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
+    }
+    const answer = await this.answersService.createOrUpdate(createAnswerDto);
+
+    return plainToInstance(
+      OutputCreateOrUpdateDto,
+      { ...answer, isCopiedQuestion: false },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   @Get()

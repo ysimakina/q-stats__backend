@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindOptions, Op, Sequelize } from 'sequelize';
 
-import { AnswerWithCopiedFlag } from '../types';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Answer } from './entities/answer.entity';
 import { UserQuestion } from '../user-questions/entities/user-question.entity';
@@ -11,10 +10,7 @@ import { UserQuestion } from '../user-questions/entities/user-question.entity';
 export class AnswersService {
   constructor(@InjectModel(Answer) private answerRepository: typeof Answer) {}
 
-  async createOrUpdate(
-    createAnswerDto: CreateAnswerDto,
-    isCopiedQuestion: boolean,
-  ): Promise<AnswerWithCopiedFlag> {
+  async createOrUpdate(createAnswerDto: CreateAnswerDto) {
     try {
       const startDate = createAnswerDto.date.setHours(0, 0, 0, 0);
       const endDate = createAnswerDto.date.setHours(23, 59, 59, 999);
@@ -35,11 +31,11 @@ export class AnswersService {
           { where: { id: existingAnswer.id }, returning: true },
         );
 
-        return { ...updatedAnswers[0].dataValues, isCopiedQuestion };
+        return { ...updatedAnswers[0].dataValues };
       }
 
       const answer = await this.answerRepository.create({ ...createAnswerDto });
-      return { ...answer.dataValues, isCopiedQuestion };
+      return { ...answer.dataValues };
     } catch (error) {
       throw new BadRequestException(
         { message: 'Failed to create or update answer' },
