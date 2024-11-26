@@ -1,6 +1,4 @@
-import { Expose, Type } from 'class-transformer';
-
-import { OutputCreateOrUpdateDto } from '../../answers/dto/output-create-or-update.dto';
+import { Expose } from 'class-transformer';
 
 export class OutputUserQuestionDto {
   @Expose()
@@ -11,8 +9,4 @@ export class OutputUserQuestionDto {
 
   @Expose()
   order: number;
-
-  @Expose()
-  @Type(() => OutputCreateOrUpdateDto)
-  answers: OutputCreateOrUpdateDto[];
 }

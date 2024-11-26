@@ -53,21 +53,29 @@ export class AnswersController {
         userQuestionId: correctUserQuestionId,
       });
 
-      return plainToInstance(OutputCreateOrUpdateDto, answer, {
-        excludeExtraneousValues: true,
-      });
+      return plainToInstance(
+        OutputCreateOrUpdateDto,
+        { answer, isCopiedQuestion: true },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
     }
     const answer = await this.answersService.createOrUpdate(createAnswerDto);
 
-    return plainToInstance(OutputCreateOrUpdateDto, answer, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(
+      OutputCreateOrUpdateDto,
+      { answer, isCopiedQuestion: false },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   @Get()
   async findAll() {
     const answers = await this.answersService.findAll({
-      attributes: ['id', 'userQuestionId', 'response', 'createdAt'],
+      attributes: ['id', 'userQuestionId', 'status', 'createdAt'],
       order: [['id', 'ASC']],
     });
 

@@ -10,15 +10,15 @@ import {
 
 import { UserQuestion } from '../../user-questions/entities/user-question.entity';
 
-interface AnswerCreactionAttrs {
-  response: boolean;
+export interface AnswerCreactionAttrs {
+  status: boolean;
   userQuestionId: number;
 }
 
 @Table({ tableName: 'Answers' })
 export class Answer extends Model<Answer, AnswerCreactionAttrs> {
   @Column
-  response: boolean;
+  status: boolean;
 
   @ForeignKey(() => UserQuestion)
   @Column

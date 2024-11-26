@@ -1,20 +1,13 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindOptions, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 
-import { Answer } from '../answers/entities/answer.entity';
 import { TopicQuestion } from '../topic-questions/entities/topic-question.entity';
 import { TopicQuestionsService } from '../topic-questions/topic-questions.service';
 import { CreateUserQuestionDto } from './dto/create-user-question.dto';
 import { UpdateCustomQuestionDto } from './dto/update-custom-question-dto';
 import { UserQuestion } from './entities/user-question.entity';
-import { Topic } from '../topics/entities/topic.entity';
 
 @Injectable()
 export class UserQuestionsService {
@@ -29,15 +22,9 @@ export class UserQuestionsService {
     return this.userQuestionRepository.findAll(options);
   }
 
-  async createCustomQuestion(
-    { topicId, text }: CreateUserQuestionDto,
-    userId: number,
-  ) {
+  async createCustomQuestion({ topicId, text }: CreateUserQuestionDto, userId: number) {
     try {
-      if (!topicId)
-        throw new BadRequestException(
-          'Topic ID is required for custom question',
-        );
+      if (!topicId) throw new BadRequestException('Topic ID is required for custom question');
 
       const order = await this.getMergedQuestionsByTopic(userId, topicId);
 
@@ -80,16 +67,6 @@ export class UserQuestionsService {
           {
             model: TopicQuestion,
             attributes: [],
-            include: [
-              {
-                model: Topic,
-                attributes: ['id'],
-              },
-            ],
-          },
-          {
-            model: Answer,
-            attributes: ['id', 'response', 'createdAt'],
           },
         ],
         order: [['order', 'ASC']],
@@ -104,13 +81,9 @@ export class UserQuestionsService {
         (topicQuestion) => userQuestionsMap[topicQuestion.order],
       );
 
-      const mergedQuestions = allUserQuestionsExist
-        ? userQuestions
-        : topicQuestions;
+      const mergedQuestions = allUserQuestionsExist ? userQuestions : topicQuestions;
 
-      const simplifiedQuestions = mergedQuestions.map(
-        (question) => question.dataValues,
-      );
+      const simplifiedQuestions = mergedQuestions.map((question) => question.dataValues);
 
       return simplifiedQuestions;
     } catch (error) {
@@ -142,13 +115,10 @@ export class UserQuestionsService {
         topicId: question.topicId,
       }));
 
-      const createdQuestions = await this.userQuestionRepository.bulkCreate(
-        userQuestionsData,
-        {
-          returning: true,
-          transaction,
-        },
-      );
+      const createdQuestions = await this.userQuestionRepository.bulkCreate(userQuestionsData, {
+        returning: true,
+        transaction,
+      });
 
       await transaction.commit();
       return createdQuestions;
