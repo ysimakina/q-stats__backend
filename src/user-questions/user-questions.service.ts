@@ -77,9 +77,15 @@ export class UserQuestionsService {
         return acc;
       }, {});
 
-      const allUserQuestionsExist = topicQuestions.some(
-        (topicQuestion) => userQuestionsMap[topicQuestion.order],
-      );
+      let allUserQuestionsExist;
+
+      if (topicQuestions.length) {
+        allUserQuestionsExist = topicQuestions.some(
+          (topicQuestion) => userQuestionsMap[topicQuestion.order],
+        );
+      } else {
+        allUserQuestionsExist = true;
+      }
 
       const mergedQuestions = allUserQuestionsExist ? userQuestions : topicQuestions;
 
