@@ -19,7 +19,6 @@ export class UsersService {
 
   async create(user: CreateUserDto) {
     try {
-      user.topicQuestions = [];
       return await this.userRepository.create(user);
     } catch (error) {
       throw new BadRequestException({ message: 'Failed to create user' }, error.message);
