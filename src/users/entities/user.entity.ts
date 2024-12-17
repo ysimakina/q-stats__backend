@@ -13,5 +13,5 @@ export class User extends Model<User, UserCreactionAttrs> {
   name: string;
 
   @BelongsToMany(() => TopicQuestion, () => UserQuestion)
-  topicQuestios: TopicQuestion[];
+  topicQuestions: TopicQuestion[];
 }
